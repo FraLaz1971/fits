@@ -1,0 +1,40 @@
+CC=gcc -g -O2
+LD=gcc
+.PHONY: all clean
+CFLAGS=-I$(CFITSIO_HOME)/include
+LDFLAGS=-L$(CFITSIO_HOME)/lib
+LIBS=-lcfitsio -lm -lz -lcurl
+OEXT=.o
+EEXT=
+RM=rm -f
+all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT)
+
+fimage(OEXT): fimage.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+readfimage(OEXT): readfimage.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+writefimage(OEXT): writefimage.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+writeftable(OEXT): writeftable.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+addfbtable(OEXT): addfbtable.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
+readfimage$(EEXT): readfimage$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+writefimage$(EEXT): writefimage$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+writeftable$(EEXT): writeftable$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+addfbtable$(EEXT): addfbtable$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+clean:
+	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT)
