@@ -1,0 +1,12 @@
+SIMPLE = T           
+BITPIX = 8           
+NAXIS = 3           
+NAXIS1 = 1280           
+NAXIS2 = 1267           
+NAXIS3 = 3           
+BSCALE = 1.000000E+00           
+BZERO = 0.000000E+00           
+DATAMAX = 2.550000E+02           
+DATAMIN = 0.000000E+00           
+HISTORY https://imagemagick.org            
+END             

@@ -21,18 +21,17 @@ C  Create a FITS primary array containing a 2-D image
 C  Takes in input the output file name, the number of
 C  columns of the image (weight), the number of rows (height).
 C  the size of the pixel in bits, if the pixel is signed or not 
-      integer status,unit,blocksize,bitpix,naxis,naxes(2)
-      integer i,j,group,fpixel,nelements
-c      character*1 array(500,320)
-      character*1 array(*,*)
+      integer status,unit,blocksize,bitpix,bzero,naxis,naxes(2)
+      integer i,j,group,fpixel,nelements,keyval, uval
       character myval
       character endian*3,key*6
-      character filename*80, mysign*16
+      character filename*80, mysign*16, keyword*64, comment*60
 C cfname=configuration file containing input metadata for the image to create
 C ifname=ascii file containing the image array points
       character*80 ifname,cfname
+      character*1 array(10000,10000)
       logical simple,extend
-	  character*1 FIELDS(500)
+	  INTEGER FIELDS(500)
 	  CHARACTER*2000 LINE
       logical debug
       debug=.true.
@@ -72,8 +71,7 @@ C OFNAME image001.fits
       write(0,*)'NAXIS2: ',naxes(2)
       write(0,*)'IFNAME: ',ifname
       write(0,*)'OFNAME: ',filename
-      
-      status=0
+
 
 C  Name of the FITS file to be created:
 C      filename='ATESTFILEZ.FITS'
@@ -108,11 +106,14 @@ C      naxes(2)=200
       extend=.true.
 
 C  Write the required header keywords to the file
+      debug=.false.
       status=0
+      comment = 'pixel format is signed byte'
       write(0,*) 'Write the required header keywords to ',filename
       call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
       write(0,*) 'naxes(1):',naxes(1),'naxes(2):',naxes(2)
-
+C  write the current date
+      call FTPDAT(unit,status)
 C  read the image data from the ascii file
       write(0,*) 'opening for reading the image file ',ifname
       open(12,FILE=ifname,STATUS='old',FORM='FORMATTED',ERR=999)
@@ -120,12 +121,16 @@ C  read the image data from the ascii file
           READ(12,'(A)',END=90) LINE
 	      READ(LINE,*) FIELDS
           do 20,i=1,naxes(1)
-            ARRAY(I,J)=FIELDS(I)
+            if (FIELDS(I) .lt. 0) then
+                uval = FIELDS(I) + 256
+            else
+                uval = FIELDS(I)
+            endif
+            ARRAY(I,J) = char(uval)
             if (debug) print *,j,i,FIELDS(I)
 20        continue
 10    continue
       close(12)
-      debug=.false.
 90    print *,'debug = ',debug
       if(debug) then
       do 30,j=1,320
@@ -148,7 +153,9 @@ C  almost always be set = 1.
       nelements=naxes(1)*naxes(2)
       write(0,*) 'Write the array to the fits file'
       status=0
-      call ftpprb(unit,group,fpixel,nelements,array,status)
+C FTPSS[BIJKED](unit,group,naxis,naxes,fpixels,lpixels,array, > status)
+C      call ftpprb(unit,group,fpixel,nelements,array,status)
+      call FTP2DB(unit,group,10000,naxes(1),naxes(2),array,status)
 
 C  Write another optional keyword to the header
 C  The keyword record will look like this in the FITS file:

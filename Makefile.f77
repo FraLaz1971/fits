@@ -1,4 +1,4 @@
-FC=f77
+FC=f77 -g
 FD=f77
 FFLAG=
 FDFLAGS=-L$(CFITSIO_HOME)
@@ -13,5 +13,9 @@ writeimage$(OEXT): writeimage.f
 	$(FC) -c $<
 writeimage$(EEXT): writeimage$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
-clean: writeimage$(EEXT)
-	$(RM) *.o writeimage$(EEXT)	
+wiuchar$(OEXT): wiuchar.f
+	$(FC) -c $<
+wiuchar$(EEXT): wiuchar$(OEXT)
+	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
+clean:
+	$(RM) *.o writeimage$(EEXT) image*.fits m31sl*.fits
