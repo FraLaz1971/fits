@@ -17,5 +17,9 @@ wiuchar$(OEXT): wiuchar.f
 	$(FC) -c $<
 wiuchar$(EEXT): wiuchar$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
+test32d$(OEXT): test32d.f
+	$(FC) -c $<
+test32d$(EEXT): test32d$(OEXT)
+	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 clean:
 	$(RM) *.o writeimage$(EEXT) image*.fits m31sl*.fits

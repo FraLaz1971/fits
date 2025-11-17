@@ -1,5 +1,9 @@
 CC=gcc
 LD=gcc
+FC=f77
+FD=f77
+FFLAGS=
+FDFLAGS=
 .PHONY: all clean
 CFLAGS=-I$(CFITSIO_HOME)
 LDFLAGS=-L$(CFITSIO_HOME)
@@ -7,7 +11,7 @@ LIBS=-lcfitsio -lm
 OEXT=.o
 EEXT=
 RM=rm -f
-all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) fimage2bin$(EEXT)
+all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) fimage2bin$(EEXT) fimage2ascii$(EEXT)
 
 fimage(OEXT): fimage.c fimage.h
 	$(CC) -c $(CFLAGS) $<
@@ -41,6 +45,12 @@ writeftable$(EEXT): writeftable$(OEXT) fimage$(OEXT)
 
 addfbtable$(EEXT): addfbtable$(OEXT) fimage$(OEXT)
 	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+fimage2ascii$(OEXT): fimage2ascii.f
+	$(FC) -c  $<
+
+fimage2ascii$(EEXT): fimage2ascii$(OEXT)
+	$(FC)  $^ -o $@ $(LDFLAGS) $(LIBS)
 clean:
-	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) fimage2bin$(EEXT)
+	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) fimage2bin$(EEXT) fimage2ascii$(EEXT)
 

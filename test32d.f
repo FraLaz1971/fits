@@ -172,20 +172,6 @@ C     Write primary header
       CALL FTPHPR(OUNIT,SIMPLE,BITPIX,2,NAXES,
      &            0,1,EXTEND,STATUS)
       
-C     Write additional header keywords
-c      STATUS=0
-c      CALL FTPKYE(OUNIT, 'BSCALE', BSCALE, 10, 
-c     &            'Data scaling factor', STATUS)
-c      STATUS=0
-c      CALL FTPKYE(OUNIT, 'BZERO', BZERO, 10,
-c     &            'Data zero point', STATUS)
-c      STATUS=0
-c      CALL FTPKYF(OUNIT, 'DATAMAX', 255.0, 1,
-c     &            'Maximum data value', STATUS)
-c      STATUS=0
-c      STATUS=0
-c      CALL FTPKYF(OUNIT, 'DATAMIN', 0.0, 1,
-c     &            'Minimum data value', STATUS)
       STATUS=0
       IF (DEBUG) WRITE(0,*)'writing history keyword'      
       CALL FTPHIS(OUNIT, 'Extracted from 3D FITS file', STATUS)
