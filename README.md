@@ -17,3 +17,6 @@ to run on linux
 ###
 `./readfimage img3x5_001.fits`
 ###
+fimage2ascii converts a fits image file in image matrix data ascii file.
+###
+`./fimage2ascii <<< m31sl2.fits 2>err.log > m31sl2.asc`
