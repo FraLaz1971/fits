@@ -10,6 +10,7 @@ int main(){
   long naxis=0, naxes[2]={0,0}, bitpix=0;
   fitsfile *fp;
   char *fname="mercury1_500x320.fits";
+  printf("rff: before opening the fits file\n");
   strcpy(keyname, "NAXIS");
   if(fits_open_file(&fp, fname, READONLY, &status)) printerror(status);
   printf("rff: file %s open\n", fname);
