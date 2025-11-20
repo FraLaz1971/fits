@@ -9,18 +9,19 @@ int main(int argc, char **argv){
   unsigned short count=0;
   char fname[128];
   fitsfile *ofp;
+  unsigned short **arr;
   if(argc<4){
     fprintf(stderr,"usage:%s <nrows> <ncols> <fitsfile>\n",argv[0]);
     return 1;
   }
   nrows=atol(argv[1]); ncols=atol(argv[2]);
   naxes[0]=ncols;naxes[1]=nrows;
-  unsigned short *arr[naxes[1]];
+  /*arr = (unsigned short *)malloc(naxes[1]*sizeof(unsigned short));*/
   /* allocate memory for the whole image */
-  arr[0] = (unsigned short *)malloc(naxes[0]*naxes[1]*sizeof(unsigned short));
+  arr = (unsigned short **)malloc(naxes[0]*sizeof(unsigned short*));
+  for(i=0; i<naxes[0]; i++)
+	arr[i]=(unsigned short *)malloc(naxes[1]*sizeof(unsigned short));
  /* initialize pointers to the start of each row of the image */
-  for(i=1; i<naxes[1];i++)
-    arr[i] = arr[i-1]+naxes[0];
   nelements=naxes[0]*naxes[1];
   strcpy(fname,argv[3]);
     remove(fname);
@@ -56,28 +57,13 @@ int main(int argc, char **argv){
         printerror( status );
     puts("written the image");
 
-   free(arr[0]);
+  for(i=0; i<naxes[0]; i++)
+	free(arr[i]);
+  free(arr);
 
   /* close file */
     if ( fits_close_file(ofp, &status) )                /* close the fits file */
          printerror( status );
     puts("closed the file");
-
   return 0;
 }
-void printerror( int status)
-{
-    /*****************************************************/
-    /* Print out cfitsio error messages and exit program */
-    /*****************************************************/
-
-
-    if (status)
-    {
-       fits_report_error(stderr, status); /* print error report */
-
-       exit( status );    /* terminate the program, returning error status */
-    }
-    return;
-}
-

@@ -9,6 +9,7 @@
         char card[FLEN_CARD]; 
         int status = 0,  nkeys, ii;  /* MUST initialize status */
         if (argc < 2)     {
+	  fprintf(stderr,"This program takes in input a fits file and prints header keywords\n");
           fprintf(stderr,"usage: %s <fitsfile>\n",argv[0]);
           exit(1);
         }

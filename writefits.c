@@ -23,11 +23,12 @@ void printerror( int status);
 
 int main(int argc, char **argv)
 {
+	char *fname;
 	if (argc<2){
 		fprintf(stderr,"usage:%s <fitsfile>\n",argv[0]);
 		return 1;
 	}
-	char *fname=argv[1];
+	fname=argv[1];
 /*************************************************************************
    This is a simple main program that calls the following routines:
 
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
 /*    readimage(fname);*/
     readtable(fname);
 
+    printf("\nCompiled on MS Windows with MSVC VERSION: %d.\n", _MSC_VER);
     printf("\nAll the cfitsio cookbook routines ran successfully.\n");
     return(0);
 }
@@ -556,21 +558,5 @@ void readtable( char *fname )
     if ( fits_close_file(fptr, &status) ) 
          printerror( status );
 
-    return;
-}
-/*--------------------------------------------------------------------------*/
-void printerror( int status)
-{
-    /*****************************************************/
-    /* Print out cfitsio error messages and exit program */
-    /*****************************************************/
-
-
-    if (status)
-    {
-       fits_report_error(stderr, status); /* print error report */
-
-       exit( status );    /* terminate the program, returning error status */
-    }
     return;
 }

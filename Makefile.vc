@@ -1,0 +1,43 @@
+CC=cl /MT
+LD=link
+CFITSIO_HOME=C:\cfitsio\cfitsiovc
+CFLAGS=/I$(CFITSIO_HOME)
+LDFLAGS=/LIBPATH:$(CFITSIO_HOME)
+LIBS=cfitsio.lib
+OEXT=.obj
+EEXT=.exe
+SHELL=cmd
+RM=del /Q /F
+# --- Sources ----------------------------------------------
+LIBSRCS = fimage.c
+LIBOBJS = $(LIBSRCS:.c=.obj)
+LIBFLAGS = /LIBPATH:$(CFITSIO_HOME) cfitsio.lib
+LIBTARGET = fimage.obj
+$(LIBTARGET): fimage.c
+	$(CC) $(CFLAGS) /c $?
+cookbook.exe: cookbook.c
+	$(CC) $(CFLAGS) $? /link $(LIBFLAGS)
+pofp2df.exe: pofp2df.c
+	$(CC) $(CFLAGS) $? /link $(LIBFLAGS)
+
+EXESRCS = addfbtable.c cfirst.c changekeys.c createimage.c createraw.c fimage2bin.c \
+pofp2d.c readfdimg.c readfimage.c readfimg.c readraw.c readrawf.c \
+readwriterawf.c rff.c sizes.c structrows.c testf1.c testf2.c testf3.c teststrx.c writefimage.c \
+writefits.c writeftable.c
+EXEOBJS = $(EXESRCS:.c=.obj)
+EXETARGETS = $(EXESRCS:.c=.exe)
+All: $(LIBTARGET) $(EXEOBJS) $(EXETARGETS) cookbook.exe pofp2df.exe
+# --- Compile all .c to .obj -------------------------------
+.c.obj:
+	$(CC) $(CFLAGS) /c $<
+# --- Executables build rule -------------------------------
+.obj.exe:
+	$(LD) $(LDFLAGS) $(LIBFLAGS) /OUT:$@ $** $(LIBTARGET)
+
+
+clean:
+	$(RM) *$(OEXT) writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) writefits$(EEXT) \
+addfbtable$(EEXT) cfirst$(EEXT) changekeys$(EEXT) cookbook$(EEXT) createimage$(EEXT) createraw$(EEXT) \
+fimage2bin$(EEXT) pofp2d$(EEXT) pofp2df$(EEXT) readfdimg$(EEXT) readfimage$(EEXT)  \
+readfimg$(EEXT) readraw$(EEXT) readrawf$(EEXT) readwriterawf$(EEXT) rff$(EEXT) sizes$(EEXT) structrows$(EEXT) \
+testf1$(EEXT) testf2$(EEXT) testf3$(EEXT) teststrx$(EEXT) writefimage$(EEXT) writefits$(EEXT) writeftable$(EEXT)

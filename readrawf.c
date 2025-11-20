@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "fitsio.h"
+#define buffsize 6000
 
 void printerror( int status);
 
@@ -8,22 +9,24 @@ int main(int argc, char **argv){
   int intnull=0;
   int anynull=0;
   int status,  nfound, nullval;
-#define buffsize 6000
   int buffer[buffsize];
   long naxes[2], fpixel, nbuffer, npixels, ii;
   float datamin, datamax;
-
   int val=0;
   fitsfile *ifp;
   int i, j, res;
+  int **arr;
+  unsigned int nrows=atoi(argv[1]);
+  unsigned int ncols=atoi(argv[2]);
+  char *fname=argv[3];
   if(argc<4){
     fprintf(stderr,"usage:%s <nrows> <ncols> <infile>\n",argv[0]);
     return 1;
   }
-  unsigned int nrows=atoi(argv[1]);
-  unsigned int ncols=atoi(argv[2]);
-  char *fname=argv[3];
-  int (*arr)[ncols]=malloc(sizeof(int[nrows][ncols]));
+  arr=(int**)malloc(nrows*sizeof(int*));
+  for(i=0; i<nrows;i++)
+	arr[i]=(int*)malloc(ncols*sizeof(int));
+  
   printf("readrawf: going to open the file %s\n", fname);
   if (fits_open_image(&ifp, fname, READONLY, &status))
       printerror(status);
@@ -108,32 +111,5 @@ DTYPE *nulval, > DTYPE *array, int *anynul, int *status)
 	printerror(status);
   puts("readrawf: file yet closed");
   return 0;
-}
-
-/*
-
-    for(j=0;j<ncols;j++){
-  for(i=0;i<nrows;i++){
-	if (fits_read_col(ifp, TINT, j,(long)i,(long)1,(long)1,&intnull,&val,&anynull,&status) )
-//	arr[i][j]=val;
-        printf("%3d ",val);
-    }
-  }
- */
-
-/*--------------------------------------------------------------------------*/
-void printerror( int status)
-{
-    /*****************************************************/
-    /* Print out cfitsio error messages and exit program */
-    /*****************************************************/
-
-
-    if (status)
-    {
-       fits_report_error(stderr, status); /* print error report */
-/*       exit( status ); */   /* terminate the program, returning error status */
-    }
-    return;
 }
 

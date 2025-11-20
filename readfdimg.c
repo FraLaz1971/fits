@@ -10,11 +10,12 @@ int main(int argc, char **argv){
   int status, nfound=0, anynull=0;
   long int naxis=0,naxes[2]={0,0},bitpix=0,fpixel=1,npixels,i,j;
   double nullval=0;
+  double** arr;
+  char *fname=argv[1];
   if(argc<2){
     fprintf(stderr,"usage:%s <fitsfile>\n",argv[0]);
     return 1;
   }
-  char *fname=argv[1];
   /* open image file */
   status=0;
   if(fits_open_file(&fp,fname,READONLY,&status)) printerror(status);
@@ -36,7 +37,10 @@ int fits_read_keys_[log, lng, flt, dbl] / ffgkn[ljed]
   printf("naxis = %ld \n",naxis);
   printf("naxes[0] = %ld \n",naxes[0]);
   printf("naxes[1] = %ld \n",naxes[1]);
-
+  arr=(double **)malloc(naxes[0]*sizeof(double*));
+  for(i=0;i<naxes[0];i++)
+    arr=(double*)malloc(naxes[1]*sizeof(double));
+    
     status=0;
 if( fits_read_key_lng(fp, (char*)keyname, &naxis, (char *)cmt,&status)) printerror(status);
   printf("status = %d \n",status);
@@ -57,7 +61,6 @@ if( fits_read_key_lng(fp, (char*)keyname, &naxis, (char *)cmt,&status)) printerr
   if(fits_read_key_lng(fp,keyname,&bitpix,(char*)cmt,&status)) printerror(status);
   printf("status = %d \n",status);
   printf("bitpix = %ld comment: %s\n",bitpix,cmt); 
-  double(* arr)[naxes[0]]=malloc(sizeof(double [naxes[1]][naxes[0]]));
   npixels=naxes[0]*naxes[1];
 
   /* load the image */
@@ -73,24 +76,10 @@ if( fits_read_key_lng(fp, (char*)keyname, &naxis, (char *)cmt,&status)) printerr
     puts("");
   }
   /* close image file */
-  free(arr);
+  for(i=0;i<naxes[0];i++)
+	free(arr[i]);
+	free(arr);
   status=0;
   if(fits_close_file(fp,&status)) printerror(status);
   return 0;
 }
-
-void printerror( int status)
-{
-    /*****************************************************/
-    /* Print out cfitsio error messages and exit program */
-    /*****************************************************/
-
-
-    if (status)
-    {
-       fits_report_error(stderr, status); /* print error report */
-      /* exit( status );     terminate the program, returning error status */
-    }
-    return;
-}
-

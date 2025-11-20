@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "fitsio.h"
+#define MAXSIZE 10000
 void printerror(int status);
 
 int main(int argc, char **argv){
@@ -9,18 +10,14 @@ int main(int argc, char **argv){
   unsigned short nulval,**arr2;
   char keyname[32],cmt[128];
   long nkeys;
+  char *fname=argv[1];
+  unsigned short arr[MAXSIZE][MAXSIZE];
   if(argc<2) {
     fprintf(stderr,"usage:%s <fitsfile>\n",argv[0]);
     return 1;
   }
-  char *fname=argv[1];
   if(fits_open_file(&fp,fname,READONLY,&status)) 
      printerror(status);
-/*
-int fits_read_key / ffgky (fitsfile *fptr,
-int datatype, char *keyname, > DTYPE *value,
-       char *comment, int *status)
-*/
   if(fits_read_key(fp, TLONG, (char*)"NAXIS", &naxis,
        (char*)cmt, &status)) printerror(status);
   printf("naxis:%ld comment:%s\n",naxis,cmt);
@@ -40,23 +37,9 @@ int datatype, char *keyname, > DTYPE *value,
   firstelem=1;nelements=naxes[0]*naxes[1];
   nulval=0;
   if((bitpix==16)&&(bzero==32768)&&(naxis==2)){
-  arr2=(unsigned short **)malloc(naxis[1]*sizeof(unsigned short*));
-  for (i=0;i<naxis[1];i++)
+  arr2=(unsigned short **)malloc(naxes[1]*sizeof(unsigned short*));
+  for (i=0;i<naxes[1];i++)
      arr2[i]=(unsigned short*)malloc(naxes[0]*sizeof(unsigned short));
-/*	  unsigned short* arr[naxes[0]];
-	  for(i=0;i<naxes[0];i++);
-		arr[i]=(unsigned short*)malloc(sizeof(unsigned short)*naxes[1]);
-*/
-unsigned short arr[naxes[1]][naxes[0]];
-/*		int fits_read_img / ffgpv
-(fitsfile *fptr, int datatype, long firstelem, long nelements,
-DTYPE *nulval, > DTYPE *array, int *anynul, int *status)
-* 
-* int fits_read_img_[byt, sht, usht, int, uint, lng, ulng, lnglng, flt, dbl] /
-ffgpv[b,i,ui,k,uk,j,uj,jj,e,d]
-(fitsfile *fptr, long group, long firstelem, long nelements,
-DTYPE nulval, > DTYPE *array, int *anynul, int *status)
-*/
 	  printf("&arr[0][0]:%p\n",&arr[0][0]);
 	  printf("&arr[0]:%p\n",&arr[0]);
 	  printf("arr[0]:%p\n",arr[0]);
@@ -72,17 +55,10 @@ DTYPE nulval, > DTYPE *array, int *anynul, int *status)
 		  puts("");
 	  }
   }
-  for (i=0;i<naxis[1];i++)
-      free(arr[i]);
+  for (i=0;i<naxes[1];i++)
+      free(arr2[i]);
   free(arr2);
 
   if(fits_close_file(fp,&status)) printerror(status);
   return 0;
-}
-void printerror(int status){
-  if(status){
-    fits_report_error(stderr,status);
-    exit(0);
-  }
-  return;
 }

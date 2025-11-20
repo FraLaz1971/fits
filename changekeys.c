@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fitsio.h"
+#define MAXCOLS 10000
 int debug=0;
 void printerror( int status);
 
@@ -10,23 +11,26 @@ int main(int argc, char **argv){
   int anynull=0;
   int status,  nfound, nullval;
   int *buffer;
+  int **arr;
   long naxes[2], naxis=2,fpixel, nbuffer, npixels, ii;
   float datamin, datamax;
   size_t n;
   int val=0;
   fitsfile *ifp,*ofp;
   int i, j, res;
+  unsigned int nrows=atoi(argv[1]);
+  unsigned int ncols=atoi(argv[2]); 
+  char *temp;
+  char *fname=argv[3];/* input file name */
+  char *ofname;/* output file name */
   if(argc<4){
     fprintf(stderr,"usage:%s <nrows> <ncols> <infile>\n",argv[0]);
     return 1;
   }
-  unsigned int nrows=atoi(argv[1]);
-  unsigned int ncols=atoi(argv[2]);
-  int (*arr)[ncols]=malloc(sizeof(int[nrows][ncols]));
+  arr=(int **)malloc(nrows*sizeof(int*));
+  for(i=0; i<nrows;i++)
+	arr[i]=(int*)malloc(ncols*sizeof(int));
   buffer = (int *) malloc(nrows*ncols*sizeof(int));
-  char *temp;
-  char *fname=argv[3];/* input file name */
-  char *ofname;/* output file name */
   temp = strrchr(fname, '.');
   printf("temp=%s\n",temp);
   n=strlen(fname)-strlen(temp);
@@ -142,6 +146,9 @@ DTYPE *nulval, > DTYPE *array, int *anynul, int *status)
   printf("readwriterawf: going to close the output file %s\n", ofname);
   if(fits_close_file(ofp, &status)) printerror(status);
   puts("readwriterawf: input file yet closed");
+  for(i=0; i<nrows;i++)
+		free(arr[i]);
+  free(arr);
 
   return 0;
 }
@@ -156,18 +163,3 @@ DTYPE *nulval, > DTYPE *array, int *anynul, int *status)
   }
  */
 
-/*--------------------------------------------------------------------------*/
-void printerror( int status)
-{
-    /*****************************************************/
-    /* Print out cfitsio error messages and exit program */
-    /*****************************************************/
-
-
-    if (status)
-    {
-       fits_report_error(stderr, status); /* print error report */
-/*       exit( status ); */   /* terminate the program, returning error status */
-    }
-    return;
-}
