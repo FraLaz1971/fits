@@ -106,6 +106,12 @@ usage:createimage <nrows> <ncols> <fitsfile>
     /* in this case.                                                */
 
 ###
+createimageblock.c
+The array is implemented as single 1D array and written in block
+###
+createimagepbyp.c
+The array is implemented with a 2D array, dynamically allocated
+###
 createraw.c
 ###
 fimage.c

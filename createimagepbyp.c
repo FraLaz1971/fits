@@ -11,17 +11,24 @@ int main(int argc, char **argv){
   char fname[128];
   fitsfile *ofp;
   unsigned short **arr;
+  unsigned short *arr_contiguous;
   if(argc<4){
     fprintf(stderr,"usage:%s <nrows> <ncols> <fitsfile>\n",argv[0]);
     return 1;
   }
   nrows=atol(argv[1]); ncols=atol(argv[2]);
+  if(nrows <= 0 || ncols <= 0) {
+    fprintf(stderr, "Error: nrows and ncols must be positive integers\n");
+    return 1;
+  }
   naxes[0]=ncols;naxes[1]=nrows;
+  nelements=nrows*ncols;
   /*arr = (unsigned short *)malloc(naxes[1]*sizeof(unsigned short));*/
   /* allocate memory for the whole image */
+  arr_contiguous=(unsigned short *)malloc(nelements*sizeof(unsigned short));
   arr = (unsigned short **)malloc(naxes[1]*sizeof(unsigned short*));
   for(i=0; i<naxes[1]; i++)
-	arr[i]=(unsigned short *)malloc(naxes[0]*sizeof(unsigned short));
+	arr[i]=arr_contiguous + ncols*i;
   fpixel = (long *)malloc(3*sizeof(long));
  /* initialize pointers to the start of each row of the image */
   nelements=naxes[0]*naxes[1];
@@ -46,24 +53,22 @@ int main(int argc, char **argv){
     if ( fits_create_img(ofp,  bitpix, naxis, naxes, &status) )
          printerror( status );
    puts("created the image");
-  nelements=1;
+   fpixel[0] = 1;   /* column index, starting at 1 */
+   fpixel[1] = 1;   /* row index, starting at 1 */
   /* fill the array */
   for(i=0;i<nrows;i++){
     for(j=0;j<ncols;j++){
          arr[i][j]=(unsigned short)(i*ncols+j+1);
-   fpixel[0] = j+1;   /* column index, starting at 1 */
-   fpixel[1] = i+1;   /* row index, starting at 1 */
-    if ( fits_write_pix(ofp, TUSHORT, fpixel, 1, &arr[i][j], &status) ) printerror( status );
          printf("%hd ",arr[i][j]);
     }
     puts("");
   }
   /* write image */
+    if ( fits_write_pix(ofp, TUSHORT, fpixel, nelements, arr_contiguous, &status) ) printerror( status );
     puts("written the image");
 
-  for(i=0; i<naxes[1]; i++)
-	free(arr[i]);
   free(arr);
+  free(arr_contiguous);
   free(fpixel);
   /* close file */
     if ( fits_close_file(ofp, &status) )                /* close the fits file */

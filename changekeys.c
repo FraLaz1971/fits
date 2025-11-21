@@ -43,6 +43,7 @@ int main(int argc, char **argv){
   ofname=strcat(ofname,"_new.fits");
   printf("changekeys: ofname=%s\n",ofname);
   printf("changekeys: going to open the file %s\n", fname);
+  status=0;
   if (fits_open_image(&ifp, fname, READONLY, &status))
       printerror(status);
   puts("changekeys: file yet open");
@@ -53,6 +54,7 @@ int fits_read_keys_[log, lng, flt, dbl] / ffgkn[ljed]
 > DTYPE *numval, int *nfound, int *status)
 */
     puts("changekeys:going to read file keywords");
+    status=0;
     if ( fits_read_keys_lng(ifp, "NAXIS", 1, 2, naxes, &nfound, &status) )
          printerror( status );
     puts("changekeys:keywords read");
