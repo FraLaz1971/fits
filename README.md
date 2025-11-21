@@ -20,3 +20,67 @@ to run on linux
 fimage2ascii converts a fits image file in image matrix data ascii file.
 ###
 `./fimage2ascii <<< m31sl2.fits 2>err.log > m31sl2.asc`
+###
+`addfbtable.c`
+###
+`addfbtable.exe`
+###
+`usage:addfbtable.exe <infile.fits>`
+###
+now running this command, where mynewfile001.fits it's a fits
+image of Mercury planet surface, seen by Mariner 10 spacecraft in 1974.
+###
+![mercury planet by Mariner 10 (1974)](mercury.png)
+###
+`addfbtable.exe mynewfile001.fits` 
+###
+cfirst.c
+###
+changekeys.c
+###
+cookbook.c
+###
+createimage.c
+###
+createraw.c
+###
+fimage.c
+###
+fimage2bin.c
+###
+pofp2d.c
+###
+pofp2df.c
+###
+readfdimg.c
+###
+readfimage.c
+###
+readfimg.c
+###
+readraw.c
+###
+readrawf.c
+###
+readwriterawf.c
+###
+rff.c
+###
+sizes.c
+###
+structrows.c
+###
+testf1.c
+###
+testf2.c
+###
+testf3.c
+###
+teststrx.c
+###
+writefimage.c
+###
+writefits.c
+###
+writeftable.c
+###

@@ -11,14 +11,14 @@ RM=del /Q /F
 # --- Sources ----------------------------------------------
 LIBSRCS = fimage.c
 LIBOBJS = $(LIBSRCS:.c=.obj)
-LIBFLAGS = /LIBPATH:$(CFITSIO_HOME) cfitsio.lib
+LIBFLAGS = cfitsio.lib
 LIBTARGET = fimage.obj
 $(LIBTARGET): fimage.c
 	$(CC) $(CFLAGS) /c $?
 cookbook.exe: cookbook.c
-	$(CC) $(CFLAGS) $? /link $(LIBFLAGS)
+	$(CC) $(CFLAGS) $? /link $(LDFLAGS) $(LIBFLAGS)
 pofp2df.exe: pofp2df.c
-	$(CC) $(CFLAGS) $? /link $(LIBFLAGS)
+	$(CC) $(CFLAGS) $? /link $(LDFLAGS) $(LIBFLAGS)
 
 EXESRCS = addfbtable.c cfirst.c changekeys.c createimage.c createraw.c fimage2bin.c \
 pofp2d.c readfdimg.c readfimage.c readfimg.c readraw.c readrawf.c \
