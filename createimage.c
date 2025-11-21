@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fitsio.h"
+int debug = 0;
 void printerror( int status);
 int main(int argc, char **argv){
   long nrows,ncols,naxis=2,naxes[2], nelements;
@@ -58,9 +59,9 @@ int main(int argc, char **argv){
    fpixel[0] = j+1;   /* column index, starting at 1 */
    fpixel[1] = i+1;   /* row index, starting at 1 */
     if ( fits_write_pix(ofp, TUSHORT, fpixel, 1, &arr[i][j], &status) ) printerror( status );
-         printf("%hd ",arr[i][j]);
+         if (debug) printf("%hd ",arr[i][j]);
     }
-    puts("");
+    if (debug) puts("");
   }
   /* write image */
     puts("written the image");
