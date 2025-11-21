@@ -33,99 +33,99 @@ int free_array(struct image *img){
     free(img->arr16);
   if(img->bitpix==8)
     free(img->arr8);
-  fprintf(stderr,"free_array() freed the %d bit array\n",img->bitpix);
+  fprintf(stderr,"fimage::free_array() freed the %d bit array\n",img->bitpix);
   return img->status;
 }
 int save_bin(struct image *img){
   /* remove the file if exists */
-  fprintf(stderr,"save_bin() going to remove the file if yet existent\n");
+  fprintf(stderr,"fimage::save_bin() going to remove the file if yet existent\n");
   remove(img->fname);
-  fprintf(stderr,"save_bin() file %s removed\n",img->fname);
+  fprintf(stderr,"fimage::save_bin() file %s removed\n",img->fname);
   /* open fits file for writing */
 //  if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
 //         printerror( img->status );           /* call printerror if error occurs */
   img->ofp=fopen(img->fname,"wb");
-//  fprintf(stderr,"save_bin() raw file created\n");
+//  fprintf(stderr,"fimage::save_bin() raw file created\n");
   /* create the image */
 //  if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
 //         printerror( img->status );
-//  fprintf(stderr,"save_bin() image created\n");
+//  fprintf(stderr,"fimage::save_bin() image created\n");
   /* initialize the array*/
 	img->status=0;
 /*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"save_fits() array allocated\n");
+  fprintf(stderr,"fimage::save_fits() array allocated\n");
 */
   /* write the image */
-  fprintf(stderr,"save_bin() raw file %s opened\n",img->fname);
-  fprintf(stderr,"save_bin() size of the array %ld\n",img->nelements);
+  fprintf(stderr,"fimage::save_bin() raw file %s opened\n",img->fname);
+  fprintf(stderr,"fimage::save_bin() size of the array %ld\n",img->nelements);
   if(img->bitpix==32){
-        fprintf(stderr,"save_bin() going to write a 32 bits int image \n");
+        fprintf(stderr,"fimage::save_bin() going to write a 32 bits int image \n");
         fwrite(img->arr,img->nelements*4,1,img->ofp);
 //  if ( fits_write_img(img->ofp, TINT, img->fpixel, img->nelements, img->arr, &img->status) )
 //        printerror( img->status );
   } else if (img->bitpix==16) {
-  fprintf(stderr,"save_bin() going to write a 16 bits int image \n");
+  fprintf(stderr,"fimage::save_bin() going to write a 16 bits int image \n");
         fwrite(img->arr16,img->nelements*2,1,img->ofp);
 //  if ( fits_write_img(img->ofp, TSHORT, img->fpixel, img->nelements, img->arr16, &img->status) )
 //        printerror( img->status );
   } else if (img->bitpix==8){
-  fprintf(stderr,"save_bin() going to write a 8 bits int image \n");
+  fprintf(stderr,"fimage::save_bin() going to write a 8 bits int image \n");
 //  if ( fits_write_img(img->ofp, TBYTE, img->fpixel, img->nelements, img->arr8, &img->status) )
 //        printerror( img->status );
         fwrite(img->arr8,img->nelements,1,img->ofp);
   } else if (img->bitpix==-32){
-  fprintf(stderr,"save_bin() going to write a 32 bits float image \n");
+  fprintf(stderr,"fimage::save_bin() going to write a 32 bits float image \n");
 //  if ( fits_write_img(img->ofp, TFLOAT, img->fpixel, img->nelements, img->arr8, &img->status) )
 //        printerror( img->status );
         fwrite(img->arr,img->nelements,1,img->ofp);
   }
-  fprintf(stderr,"save_bin() raw file written\n");
+  fprintf(stderr,"fimage::save_bin() raw file written\n");
   /* close fits file */
   //if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
          //printerror( img->status );           
          fclose(img->ofp);
-  fprintf(stderr,"save_bin() raw file closed\n");
+  fprintf(stderr,"fimage::save_bin() raw file closed\n");
   return img->status;
 }
 
 int save_fits(struct image *img){
   /* remove the file if exists */
-  fprintf(stderr,"save_fits() going to remove the file if yet existent\n");
+  fprintf(stderr,"fimage::save_fits() going to remove the file if yet existent\n");
   remove(img->fname);
-  fprintf(stderr,"save_fits() file %s removed\n",img->fname);
+  fprintf(stderr,"fimage::save_fits() file %s removed\n",img->fname);
   /* open fits file for writing */
   if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
          printerror( img->status );           /* call printerror if error occurs */
-  fprintf(stderr,"save_fits() fits file created\n");
+  fprintf(stderr,"fimage::save_fits() fits file created\n");
   /* create the image */
   if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
          printerror( img->status );
-  fprintf(stderr,"save_fits() image created\n");
+  fprintf(stderr,"fimage::save_fits() image created\n");
   /* initialize the array*/
 	img->status=0;
 /*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"save_fits() array allocated\n");
+  fprintf(stderr,"fimage::save_fits() array allocated\n");
 */
   /* write the image */
-  fprintf(stderr,"save_fits() fits file opened\n");
+  fprintf(stderr,"fimage::save_fits() fits file opened\n");
   if(img->bitpix==32){
-        fprintf(stderr,"save_fits() going to write a 32 bits image \n");
+        fprintf(stderr,"fimage::save_fits() going to write a 32 bits image \n");
   if ( fits_write_img(img->ofp, TINT, img->fpixel, img->nelements, img->arr, &img->status) )
         printerror( img->status );
   } else if (img->bitpix==16) {
-  fprintf(stderr,"save_fits() going to write a 16 bits image \n");
+  fprintf(stderr,"fimage::save_fits() going to write a 16 bits image \n");
   if ( fits_write_img(img->ofp, TSHORT, img->fpixel, img->nelements, img->arr16, &img->status) )
         printerror( img->status );
   } else if (img->bitpix==8){
-  fprintf(stderr,"save_fits() going to write a 8 bits image \n");
+  fprintf(stderr,"fimage::save_fits() going to write a 8 bits image \n");
   if ( fits_write_img(img->ofp, TBYTE, img->fpixel, img->nelements, img->arr8, &img->status) )
         printerror( img->status );
   }
-  fprintf(stderr,"save_fits() fits file written\n");
+  fprintf(stderr,"fimage::save_fits() fits file written\n");
   /* close fits file */
   if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
          printerror( img->status );           
-  fprintf(stderr,"save_fits() fits file closed\n");
+  fprintf(stderr,"fimage::save_fits() fits file closed\n");
   return img->status;
 }
 int init_table(struct image *img){
@@ -161,10 +161,10 @@ int load_fits(struct image *img){
 long int i,j;
   /* open fits file for reading */
   img->status=0;
-  fprintf(stderr,"load_fits() going to open file %s\n",img->ifname);
+  fprintf(stderr,"fimage::load_fits() going to open file %s\n",img->ifname);
   if ( fits_open_file(&img->ifp, img->ifname, READONLY, &img->status) )
      printerror( img->status );
-  fprintf(stderr,"load_fits() input fits file opened\n");
+  fprintf(stderr,"fimage::load_fits() input fits file opened\n");
   /* load image in memory */
   if(fits_read_key(img->ifp, TLONG, (char*)"NAXIS", &img->naxis,
        (char*)img->cmt, &img->status)) printerror(img->status);
@@ -184,38 +184,38 @@ long int i,j;
   /* initialize the array*/
   img->status=0;
   if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n");
-  fprintf(stderr,"load_fits() array allocated\n");
+  fprintf(stderr,"fimage::load_fits() array allocated\n");
 
   if(img->bitpix==32){
-                  fprintf(stderr,"load_fits() reading a 32 bit per pixel image\n");
+                  fprintf(stderr,"fimage::load_fits() reading a 32 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TINT, img->fpixel, img->nelements, &img->nullval,
                   img->arr, &img->anynull, &img->status) ) printerror( img->status );
   } else if (img->bitpix==16){
-                  fprintf(stderr,"load_fits() reading a 16 bit per pixel image\n");
+                  fprintf(stderr,"fimage::load_fits() reading a 16 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TSHORT, img->fpixel, img->nelements, &img->nullval,
                   img->arr16, &img->anynull, &img->status) ) printerror( img->status );
   } else if (img->bitpix==8){
-                  fprintf(stderr,"load_fits() reading a 8 bit per pixel image\n");
+                  fprintf(stderr,"fimage::load_fits() reading a 8 bit per pixel image\n");
   if ( fits_read_img(img->ifp, TBYTE, img->fpixel, img->nelements, &img->nullval,
                   img->arr8, &img->anynull, &img->status) ) printerror( img->status );
   }
-  fprintf(stderr,"load_fits() image loaded in memory\n");
+  fprintf(stderr,"fimage::load_fits() image loaded in memory\n");
   /* close fits file */
   if ( fits_close_file(img->ifp, &img->status) ) printerror( img->status );
-  fprintf(stderr,"load_fits() input fits file closed\n");
+  fprintf(stderr,"fimage::load_fits() input fits file closed\n");
 return img->status;
 }
 
 int set_chdu(int hdunum,struct image *img){
   img->chdu=hdunum;
-  fprintf(stderr,"set_chdu() current hdu set to %d\n",img->chdu);
-  fprintf(stderr,"set_chdu() going to open fits file %s\n",img->fname);
+  fprintf(stderr,"fimage::set_chdu() current hdu set to %d\n",img->chdu);
+  fprintf(stderr,"fimage::set_chdu() going to open fits file %s\n",img->fname);
 if (fits_open_file(&img->ofp, img->fname, READWRITE, &img->status) )
    printerror(img->status);
-  fprintf(stderr,"set_chdu() opened fits file %s\n",img->fname);
+  fprintf(stderr,"fimage::set_chdu() opened fits file %s\n",img->fname);
 if ( fits_movabs_hdu(img->ofp, img->chdu, &img->btable.hdutype, &img->status) )
   printerror(img->status);
-  fprintf(stderr,"set_chdu() moved to hdu %d tyoe %d\n",img->chdu,img->btable.hdutype);
+  fprintf(stderr,"fimage::set_chdu() moved to hdu %d tyoe %d\n",img->chdu,img->btable.hdutype);
   return img->status;
 }
 int add_table(struct image *img){
@@ -235,7 +235,7 @@ int add_table(struct image *img){
     img->btable.tunit[0] = "\0";
     img->btable.tunit[1] = "km";
     img->btable.tunit[2] = "g/cm^3";
-  fprintf(stderr,"add_table() defined columns metadata\n");
+  fprintf(stderr,"fimage::add_table() defined columns metadata\n");
 
     /* define the name, diameter, and density of each planet */
     img->btable.planet[0] = "Mercury";
@@ -256,26 +256,26 @@ int add_table(struct image *img){
     img->btable.density[3]  = 3.94f;
     img->btable.density[4]  = 1.33f;
     img->btable.density[5]  = 0.69f;
-  fprintf(stderr,"add_table() defined columns content\n");
+  fprintf(stderr,"fimage::add_table() defined columns content\n");
 if ( fits_create_tbl( img->ofp, BINARY_TBL,
 img->btable.nrows, img->btable.tfields,
 img->btable.ttype, img->btable.tform,
 img->btable.tunit, img->btable.extname, &img->status) )
          printerror( img->status );
-  fprintf(stderr,"add_table() created table\n");
+  fprintf(stderr,"fimage::add_table() created table\n");
 
     if(fits_write_col(img->ofp, TSTRING, 1, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.planet,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 1\n");
+    fprintf(stderr,"fimage::add_table() written column 1\n");
     if(fits_write_col(img->ofp, TLONG, 2, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.diameter,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 2\n");
+    fprintf(stderr,"fimage::add_table() written column 2\n");
     if(fits_write_col(img->ofp, TFLOAT, 3, img->btable.firstrow, img->btable.firstelem, img->btable.nrows, img->btable.density,
                    &img->status)) printerror(img->status);
-    fprintf(stderr,"add_table() written column 3\n");
+    fprintf(stderr,"fimage::add_table() written column 3\n");
     if ( fits_close_file(img->ofp, &img->status) )
          printerror( img->status );
-    fprintf(stderr,"add_table() closed fits file\n");
+    fprintf(stderr,"fimage::add_table() closed fits file\n");
   return img->status;
 }
 
