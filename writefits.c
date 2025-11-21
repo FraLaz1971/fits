@@ -51,8 +51,9 @@ int main(int argc, char **argv)
     readheader(fname);
 /*    readimage(fname);*/
     readtable(fname);
-
+#ifdef _MSC_VER
     printf("\nCompiled on MS Windows with MSVC VERSION: %d.\n", _MSC_VER);
+#endif
     printf("\nAll the cfitsio cookbook routines ran successfully.\n");
     return(0);
 }
