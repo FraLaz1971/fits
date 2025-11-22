@@ -41,49 +41,28 @@ int save_bin(struct image *img){
   fprintf(stderr,"fimage::save_bin() going to remove the file if yet existent\n");
   remove(img->fname);
   fprintf(stderr,"fimage::save_bin() file %s removed\n",img->fname);
-  /* open fits file for writing */
-//  if (fits_create_file(&img->ofp, img->fname, &img->status)) /* create new FITS file */
-//         printerror( img->status );           /* call printerror if error occurs */
-  img->ofp=fopen(img->fname,"wb");
-//  fprintf(stderr,"fimage::save_bin() raw file created\n");
-  /* create the image */
-//  if ( fits_create_img(img->ofp, img->bitpix, img->naxis, img->naxes, &img->status) )
-//         printerror( img->status );
-//  fprintf(stderr,"fimage::save_bin() image created\n");
-  /* initialize the array*/
+  /* open binary file for writing */
+  img->bfp=fopen(img->fname,"wb");
 	img->status=0;
-/*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"fimage::save_fits() array allocated\n");
-*/
   /* write the image */
   fprintf(stderr,"fimage::save_bin() raw file %s opened\n",img->fname);
   fprintf(stderr,"fimage::save_bin() size of the array %ld\n",img->nelements);
   if(img->bitpix==32){
         fprintf(stderr,"fimage::save_bin() going to write a 32 bits int image \n");
-        fwrite(img->arr,img->nelements*4,1,img->ofp);
-//  if ( fits_write_img(img->ofp, TINT, img->fpixel, img->nelements, img->arr, &img->status) )
-//        printerror( img->status );
+        fwrite(img->arr,img->nelements*4,1,img->bfp);
   } else if (img->bitpix==16) {
   fprintf(stderr,"fimage::save_bin() going to write a 16 bits int image \n");
-        fwrite(img->arr16,img->nelements*2,1,img->ofp);
-//  if ( fits_write_img(img->ofp, TSHORT, img->fpixel, img->nelements, img->arr16, &img->status) )
-//        printerror( img->status );
+        fwrite(img->arr16,img->nelements*2,1,img->bfp);
   } else if (img->bitpix==8){
   fprintf(stderr,"fimage::save_bin() going to write a 8 bits int image \n");
-//  if ( fits_write_img(img->ofp, TBYTE, img->fpixel, img->nelements, img->arr8, &img->status) )
-//        printerror( img->status );
-        fwrite(img->arr8,img->nelements,1,img->ofp);
+        fwrite(img->arr8,img->nelements,1,img->bfp);
   } else if (img->bitpix==-32){
   fprintf(stderr,"fimage::save_bin() going to write a 32 bits float image \n");
-//  if ( fits_write_img(img->ofp, TFLOAT, img->fpixel, img->nelements, img->arr8, &img->status) )
-//        printerror( img->status );
-        fwrite(img->arr,img->nelements,1,img->ofp);
+        fwrite(img->arr,img->nelements,1,img->bfp);
   }
   fprintf(stderr,"fimage::save_bin() raw file written\n");
   /* close fits file */
-  //if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
-         //printerror( img->status );           
-         fclose(img->ofp);
+         fclose(img->bfp);
   fprintf(stderr,"fimage::save_bin() raw file closed\n");
   return img->status;
 }
@@ -103,9 +82,6 @@ int save_fits(struct image *img){
   fprintf(stderr,"fimage::save_fits() image created\n");
   /* initialize the array*/
 	img->status=0;
-/*  if(allocate_array(img->bitpix,img)) fprintf(stderr,"error in allocating array memory\n"); 
-  fprintf(stderr,"fimage::save_fits() array allocated\n");
-*/
   /* write the image */
   fprintf(stderr,"fimage::save_fits() fits file opened\n");
   if(img->bitpix==32){
@@ -124,7 +100,7 @@ int save_fits(struct image *img){
   fprintf(stderr,"fimage::save_fits() fits file written\n");
   /* close fits file */
   if ( fits_close_file(img->ofp, &img->status) ) /* close the file */
-         printerror( img->status );           
+         printerror( img->status );
   fprintf(stderr,"fimage::save_fits() fits file closed\n");
   return img->status;
 }
@@ -278,7 +254,54 @@ img->btable.tunit, img->btable.extname, &img->status) )
     fprintf(stderr,"fimage::add_table() closed fits file\n");
   return img->status;
 }
-
+int plot_image(struct image *img){
+  char plotcmd[1024];
+  char scmd[256];
+  char *base="myimage";
+  char pixsize[16];
+  save_bin(img);
+  switch (img->bitpix){
+    case 8:
+      strcpy(pixsize,"char");
+    break;
+    case 16:
+      strcpy(pixsize,"short");
+    break;
+    case 32:
+      strcpy(pixsize,"int");
+    break;
+    default:
+    fprintf(stderr,"fimage::plot_image() unhandled pixel format");
+  };
+  snprintf(img->gpfname,79,"%s.gp",base);
+  fprintf(stderr,"fimage::plot_image() gnuplot batch filename: %s\n",img->gpfname);
+  img->gpfp=fopen(img->gpfname,"w");
+  fprintf(img->gpfp,"unset border\n");
+  fprintf(img->gpfp,"unset xlabel\n");
+  fprintf(img->gpfp,"unset ylabel\n");
+  fprintf(img->gpfp,"unset xtics\n");
+  fprintf(img->gpfp,"unset ytics\n");
+  fprintf(img->gpfp,"set title ''\n");
+  fprintf(img->gpfp,"set palette grayscale\n");
+  snprintf(plotcmd,1023,"plot '%s' binary array=(%ld,%ld) format='%%%s' with image\n",img->fname,img->ncols,img->nrows,pixsize);
+  fprintf(img->gpfp,"%s",plotcmd);
+  fclose(img->gpfp);
+/*  snprintf(img->bfname,80,"%s.bat",base); */
+#ifdef __unix__
+  snprintf(img->bfname,80,"%s.sh",base);
+#endif
+  img->sfp=fopen(img->bfname,"w");
+#ifdef __unix__
+  fprintf(img->sfp,"#!/bin/sh\n");
+#endif
+  fprintf(img->sfp,"gnuplot -p %s\n",img->gpfname);
+  fclose(img->sfp);
+#ifdef __unix__
+  snprintf(scmd,255,"sh %s\n",img->bfname);
+#endif
+  system(scmd);
+  return img->status;
+}
 void printerror( int status)
 {
     /*****************************************************/

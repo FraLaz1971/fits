@@ -23,7 +23,7 @@ struct table{
   int hdunum;
   long firstrow;
   long firstelem;
-  int tfields;/* n. of columns*/
+  int tfields;/* n. of columns */
   long nrows;/* n. of rows */
   long ncols;/* n. of bytes in 1 row */
   char *ttype[3];
@@ -31,9 +31,9 @@ struct table{
   char *tunit[3];
 };
 struct image{
-  int *arr; /* the 32 bits array */
-  short int *arr16; /* the 16 bits array */
-  char *arr8;
+  int *arr; /* the 32 bits signed array */
+  short int *arr16; /* the 16 bits signed array */
+  char *arr8; /* the 8 bits signed array */
   long nrows;
   long ncols;
   long count;
@@ -44,11 +44,18 @@ struct image{
   int status;
   fitsfile *ifp;
   fitsfile *ofp;
+  FILE *bfp; /* pointer to binary data file */
+  FILE *afp; /* pointer to ascii data file */
+  FILE *gpfp; /* pointer to gnuplot batch file */
+  FILE *sfp; /* pointer to shell batch file */
   int bitpix; /* n. of bits for each pixel */
   long naxis; /*n. of axis(dimensions) */
   long naxes[2]; /*dimension of each axis */
   char fname[80]; /* name of the output file */
   char ifname[80]; /* name of the input file */
+  char gpfname[80];/* gnuplot batch file name (without data */
+  char pltfname[80];/* gnuplot batch file name (included data) */
+  char bfname[80];/* shell batch file name to plot */
   char cmt[80];
   int chdu;
   struct table btable;
@@ -70,5 +77,6 @@ int get_element(long rownum,long colnum,struct image *img);
 int set_chdu(int hdunum,struct image *img);
 int add_table(struct image *image);
 int add_table_struct(struct image *img, struct trow *row);
+int plot_image(struct image *img);
 void printerror( int status);
 #endif //FIMAGE_H
