@@ -255,6 +255,7 @@ img->btable.tunit, img->btable.extname, &img->status) )
   return img->status;
 }
 int plot_image(struct image *img){
+  int res;
   char plotcmd[1024];
   char scmd[256];
   char *base="myimage";
@@ -262,13 +263,13 @@ int plot_image(struct image *img){
   save_bin(img);
   switch (img->bitpix){
     case 8:
-      strcpy(pixsize,"char");
+      strcpy(pixsize,"uchar");
     break;
     case 16:
-      strcpy(pixsize,"short");
+      strcpy(pixsize,"ushort");
     break;
     case 32:
-      strcpy(pixsize,"int");
+      strcpy(pixsize,"uint");
     break;
     default:
     fprintf(stderr,"fimage::plot_image() unhandled pixel format");
@@ -299,11 +300,11 @@ int plot_image(struct image *img){
   fprintf(img->sfp,"gnuplot -p %s\n",img->gpfname);
   fclose(img->sfp);
 #ifdef __unix__
-  snprintf(scmd,255,"sh %s\n",img->bfname);
+  snprintf(scmd,255,"sh %s",img->bfname);
 #elif defined(__MINGW32__) || defined(_MSC_VER)
-  snprintf(scmd,255,"cmd /c %s\n",img->bfname);
+  snprintf(scmd,255,"cmd /c %s",img->bfname);
 #endif
-  system(scmd);
+  res = system(scmd);
   return img->status;
 }
 void printerror( int status)

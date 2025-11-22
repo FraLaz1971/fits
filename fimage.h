@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fitsio.h"
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
 /* structure saving a row of the binary table */
   struct trow{
     char   str[10];

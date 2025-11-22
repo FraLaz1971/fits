@@ -41,4 +41,4 @@ addfbtable$(EEXT) cfirst$(EEXT) changekeys$(EEXT) cookbook$(EEXT) createimage$(E
 fimage2bin$(EEXT) pofp2d$(EEXT) pofp2df$(EEXT) readfdimg$(EEXT) readfimage$(EEXT)  \
 readfimg$(EEXT) readraw$(EEXT) readrawf$(EEXT) readwriterawf$(EEXT) rff$(EEXT) sizes$(EEXT) structrows$(EEXT) \
 testf1$(EEXT) testf2$(EEXT) testf3$(EEXT) teststrx$(EEXT) writefimage$(EEXT) writefits$(EEXT) writeftable$(EEXT) \
-createimageblock$(EEXT)  createimagepbyp$(EEXT)
+createimageblock$(EEXT)  createimagepbyp$(EEXT) plotfimage$(EEXT)
