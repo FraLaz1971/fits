@@ -16,6 +16,9 @@ fimage(OEXT): fimage.c fimage.h
 readfimage(OEXT): readfimage.c fimage.h
 	$(CC)  $(CFLAGS) -c $<
 
+plotfimage(OEXT): plotfimage.c fimage.h
+	$(CC)  $(CFLAGS) -c $<
+
 createimage(OEXT): createimage.c fimage.h
 	$(CC)  $(CFLAGS) -c $<
 
@@ -47,6 +50,9 @@ changekeys(OEXT): changekeys.c fimage.h
 	$(CC)  $(CFLAGS) -c $<
 
 readfimage$(EEXT): readfimage$(OEXT) fimage$(OEXT)
+	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
+
+plotfimage$(EEXT): plotfimage$(OEXT) fimage$(OEXT)
 	$(CC)  $^ -o $@ $(LDFLAGS) $(LIBS)
 
 testf1$(EEXT): testf1$(OEXT) fimage$(OEXT)

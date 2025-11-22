@@ -289,6 +289,8 @@ int plot_image(struct image *img){
 /*  snprintf(img->bfname,80,"%s.bat",base); */
 #ifdef __unix__
   snprintf(img->bfname,80,"%s.sh",base);
+#elif defined(__MINGW32__) || defined(_MSC_VER)
+  snprintf(img->bfname,80,"%s.bat",base);
 #endif
   img->sfp=fopen(img->bfname,"w");
 #ifdef __unix__
@@ -298,6 +300,8 @@ int plot_image(struct image *img){
   fclose(img->sfp);
 #ifdef __unix__
   snprintf(scmd,255,"sh %s\n",img->bfname);
+#elif defined(__MINGW32__) || defined(_MSC_VER)
+  snprintf(scmd,255,"cmd /c %s\n",img->bfname);
 #endif
   system(scmd);
   return img->status;
