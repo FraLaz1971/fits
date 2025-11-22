@@ -8,7 +8,8 @@ OEXT=.o
 EEXT=
 RM=rm -f
 all: writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) writefits$(EEXT) testf1$(EEXT) \
-testf2$(EEXT) testf3$(EEXT) createimage$(EEXT) createimageblock$(EEXT) createimagepbyp$(EEXT) changekeys$(EEXT)
+testf2$(EEXT) testf3$(EEXT) createimage$(EEXT) createimageblock$(EEXT) createimagepbyp$(EEXT) changekeys$(EEXT) \
+plotfimage$(EEXT)
 
 fimage(OEXT): fimage.c fimage.h
 	$(CC)  $(CFLAGS) -c $<
@@ -90,4 +91,6 @@ changekeys$(EEXT): changekeys$(OEXT) fimage$(OEXT)
 
 clean:
 	$(RM) *.o writefimage$(EEXT) readfimage$(EEXT) writeftable$(EEXT) addfbtable$(EEXT) writefits$(EEXT) testf1$(EEXT) \
-testf2$(EEXT) testf3$(EEXT) createimage$(EEXT) createimageblock$(EEXT) createimagepbyp$(EEXT) changekeys$(EEXT)
+testf2$(EEXT) testf3$(EEXT) createimage$(EEXT) createimageblock$(EEXT) createimagepbyp$(EEXT) changekeys$(EEXT) plotfimage$(EEXT)
+
+

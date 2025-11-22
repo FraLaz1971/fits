@@ -23,7 +23,7 @@ pofp2df.exe: pofp2df.c
 EXESRCS = addfbtable.c cfirst.c changekeys.c createimage.c createraw.c fimage2bin.c \
 pofp2d.c readfdimg.c readfimage.c readfimg.c readraw.c readrawf.c \
 readwriterawf.c rff.c sizes.c structrows.c testf1.c testf2.c testf3.c teststrx.c writefimage.c \
-writefits.c writeftable.c createimageblock.c  createimagepbyp.c
+writefits.c writeftable.c createimageblock.c  createimagepbyp.c plotfimage.c
 EXEOBJS = $(EXESRCS:.c=.obj)
 EXETARGETS = $(EXESRCS:.c=.exe)
 All: $(LIBTARGET) $(EXEOBJS) $(EXETARGETS) cookbook.exe pofp2df.exe
