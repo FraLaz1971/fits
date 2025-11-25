@@ -1,0 +1,32 @@
+FC=ftn77 /DEBUG /CHECK
+FD=slink /DEBUG
+FFLAG=
+CFITSIO_HOME=C:\cfitsio\fitsio-ftn77
+FDFLAGS=$(CFITSIO_HOME)\fitsio.lib
+LIBS=
+RM=del /f /q
+OEXT=.obj
+EEXT=.exe
+.PHONY: all clean
+all: writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT)
+
+writeimage$(OEXT): writeimage.f
+	echo $(FC)  $<
+	$(FC)  $<
+writeimage$(EEXT): writeimage$(OEXT)
+	echo $(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+wiuchar$(OEXT): wiuchar.f
+	$(FC)  $<
+wiuchar$(EEXT): wiuchar$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+test32d$(OEXT): test32d.f
+	$(FC)  $<
+img3Dto2Dimg$(OEXT): img3Dto2Dimg.f
+	$(FC)  $<
+img3Dto2Dimg$(EEXT): img3Dto2Dimg$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+test32d$(EEXT): test32d$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+clean:
+	$(RM) *$(OEXT) writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) image*.fits m31sl*.fits

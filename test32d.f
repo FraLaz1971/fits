@@ -31,13 +31,13 @@ C
       BZERO = 0.0
       SIMPLE = .TRUE.
 
-      IF (DEBUG) WRITE(0,*)'Get the free unit number for input file'
+      IF (DEBUG) WRITE(*,*)'Get the free unit number for input file'
       call ftgiou(iunit,status)
-      IF (DEBUG) WRITE(0,*)'iunit: ',iunit,' fname: ',fname
+      IF (DEBUG) WRITE(*,*)'iunit: ',iunit,' fname: ',fname
 
 C     Open input FITS file
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'Open 3d image input FITS file'
+      IF (DEBUG) WRITE(*,*)'Open 3d image input FITS file'
       CALL FTOPEN(IUNIT, FNAME, IOMODE, BLKSZ, STATUS)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error opening input file'
@@ -48,24 +48,25 @@ C     determine the size of the image
       status = 0
       call ftgknj(iunit,'NAXIS',1,3,naxes,nfound,status)
       IF (STATUS .NE. 0) THEN
-          WRITE(0,*) 'Error reading image NAXIS data'
+          WRITE(*,*) 'Error reading image NAXIS data'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
       if (nfound .ne. 3)then
           print *,'READIMAGE failed to read the NAXISn keywords.'
-          return
+          CALL PRINTERROR(STATUS)
+          STOP
       end if
       NAXIS = NFOUND
-      IF (DEBUG) WRITE(0,*)'NFOUND = ',NFOUND
-      IF (DEBUG) WRITE(0,*)'NAXIS = ',NAXIS,' NAXIS1 ',NAXES(1),
-     & 'NAXIS2 ',NAXES(2),'NAXIS3 ',NAXES(3)
+      IF (DEBUG) WRITE(*,*)'NFOUND = ',NFOUND
+      IF (DEBUG) WRITE(*,*)'NAXIS = ',NAXIS,' NAXIS1 ',NAXES(1),
+     & ' NAXIS2 ',NAXES(2),' NAXIS3 ',NAXES(3)
       NAXIS1 = NAXES(1)  
       NAXIS2 = NAXES(2)  
       NAXIS3 = NAXES(3)  
 C     Read the 3D IMG data
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'Read the 3d image data'
+      IF (DEBUG) WRITE(*,*)'Read the 3d image data'
       NELEMENTS = NAXIS1 * NAXIS2 * NAXIS3
 C     CALL FTGPV[BIJED](unit,group,fpixel,nelements,nullval, > values,anyf,status)
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
@@ -77,19 +78,19 @@ C     CALL FTGPV[BIJED](unit,group,fpixel,nelements,nullval, > values,anyf,statu
       ENDIF
 
 C     Close input file
-      IF (DEBUG) WRITE(0,*)'CLOSE the input file'
+      IF (DEBUG) WRITE(*,*)'CLOSE the input file'
       STATUS=0
       CALL FTCLOS(IUNIT, STATUS)
       call FTFIOU(IUNIT, STATUS)
 C     Extract and save slices
-      IF (DEBUG) WRITE(0,*)'write on screen the 3D data array'
+      IF (DEBUG) WRITE(*,*)'write on screen the 3D data array'
       DEBUG=.FALSE.
       DO 300, K = 1, NAXIS3
           IF(K.EQ.4) GOTO 400
           DO 100, J = 1, NAXIS2
               DO 200, I = 1, NAXIS1
 C                  IMG2D(I,J) = IMG3D((j-1)*NAXIS1+I+0*NAXIS1*NAXIS2)
-                   IF (DEBUG) WRITE(0,*)I,J,K,I+(J-1)*
+                   IF (DEBUG) WRITE(*,*)I,J,K,I+(J-1)*
      &             NAXIS1+(K-1)*NAXIS1*NAXIS2
                    CNT = I+(J-1)*NAXIS1+(K-1)*NAXIS1*NAXIS2
                    IF(CNT.LE.(NAXIS1*NAXIS2)) THEN
@@ -108,18 +109,18 @@ C                  IMG2D(I,J) = IMG3D((j-1)*NAXIS1+I+0*NAXIS1*NAXIS2)
       debug = .true.
 
       
-      IF (DEBUG) WRITE(0,*)'going to call cr2dft ',OFILE1
+      IF (DEBUG) WRITE(*,*)'going to call cr2dft ',OFILE1
       CALL CR2DFT(OFILE1, IMG2D1, NAXIS1, NAXIS2, 
      &                  BITPIX, BSCALE, BZERO)
       ST1=STATUS
       
-      IF (DEBUG) WRITE(0,*)'save the second 2d image on ',OFILE2
+      IF (DEBUG) WRITE(*,*)'save the second 2d image on ',OFILE2
       STATUS=0
       CALL CR2DFT(OFILE2, IMG2D2, NAXIS1, NAXIS2, 
      &                  BITPIX, BSCALE, BZERO)
       ST2=STATUS
 
-      IF (DEBUG) WRITE(0,*)'save the 3rd 2d image on ',OFILE3
+      IF (DEBUG) WRITE(*,*)'save the 3rd 2d image on ',OFILE3
       STATUS=0
       CALL CR2DFT(OFILE3, IMG2D3, NAXIS1, NAXIS2, 
      &                  BITPIX, BSCALE, BZERO)
@@ -157,10 +158,10 @@ C     Subroutine to create 2D FITS files
       status=0
       call ftgiou(ounit,status)
 C     Create new FITS file
-      IF (DEBUG) WRITE(0,*)'creating OUTPUT file ', FNAME 
+      IF (DEBUG) WRITE(*,*)'creating OUTPUT file ', FNAME 
       CALL FTINIT(OUNIT, FNAME, BLKSZ, STATUS)
       IF (STATUS .NE. 0) THEN
-          WRITE(0,*) 'Error creating output file: ', FNAME
+          WRITE(*,*) 'Error creating output file: ', FNAME
           CALL PRINTERROR(STATUS)
           RETURN
       ENDIF
@@ -168,31 +169,31 @@ C     Create new FITS file
 C     Write primary header
 
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'writing primary header'      
+      IF (DEBUG) WRITE(*,*)'writing primary header'      
       CALL FTPHPR(OUNIT,SIMPLE,BITPIX,2,NAXES,
      &            0,1,EXTEND,STATUS)
       
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'writing history keyword'      
+      IF (DEBUG) WRITE(*,*)'writing history keyword'      
       CALL FTPHIS(OUNIT, 'Extracted from 3D FITS file', STATUS)
 
 C     Write IMG data
       NELEMENTS = NAXIS1 * NAXIS2
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'writing image data'      
+      IF (DEBUG) WRITE(*,*)'writing image data'      
       CALL FTPPRB(OUNIT, GROUP, FPIXEL, NELEMENTS, IMG, STATUS)
 
 C     Close the file
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'closing the file'      
+      IF (DEBUG) WRITE(*,*)'closing the file'      
       CALL FTCLOS(OUNIT, STATUS)
       call FTFIOU(OUNIT, STATUS)
       
       IF (STATUS .NE. 0) THEN
-          WRITE(0,*) 'Error writing file: ', FNAME
+          WRITE(*,*) 'Error writing file: ', FNAME
           CALL PRINTERROR(STATUS)
       ELSE
-          WRITE(0,*) 'Successfully created: ', FNAME
+          WRITE(*,*) 'Successfully created: ', FNAME
       ENDIF
       
       RETURN
@@ -251,18 +252,18 @@ C  Try to open the file, to see if it exists
 
       if (status .eq. 0)then
 C         file was opened;  so now delete it 
-          write(0,*) 'deleting the file ',filename
+          WRITE(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       else if (status .eq. 103)then
 C         file doesn't exist, so just reset status to zero and clear errors
           status=0
           call ftcmsg
-          write(0,*) 'file ',filename,' doesn''t exist: doing nothing'
+          WRITE(*,*) 'file ',filename,' doesn''t exist: doing nothing'
       else
 C         there was some other error opening the file; delete the file anyway
           status=0
           call ftcmsg
-          write(0,*) 'deleting the file ',filename
+          WRITE(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       end if
 

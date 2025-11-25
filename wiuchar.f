@@ -10,8 +10,9 @@ C  available FITSIO subroutines.
 
 C  Call the correct subroutine in turn:
 
+      write(*,*) 'going to call the writeimage subroutine'
       call writeimage
-      write(0,*) 'the writeimage program ended.'
+      write(*,*) 'the writeimage program ended.'
 
       end
 C *************************************************************************
@@ -29,13 +30,14 @@ C  the size of the pixel in bits, if the pixel is signed or not
 C cfname=configuration file containing input metadata for the image to create
 C ifname=ascii file containing the image array points
       character*80 ifname,cfname
-      integer array(10000,10000)
+      character*1 array(500,320)
       logical simple,extend
 	  integer FIELDS(500)
 	  CHARACTER*2000 LINE
       logical debug
-      debug=.true.
-
+      debug=.false.
+      open(unit=20, file='err.log', status='unknown')  
+      write(20,*)'this message goes in the errors log file'
 C  The STATUS parameter must be initialized before using FITSIO.  A
 C  positive value of STATUS is returned whenever a serious error occurs.
 C  FITSIO uses an `inherited status' convention, which means that if a
@@ -45,8 +47,8 @@ C  simplicity, this program only checks the status value at the end of
 C  the program, but it is usually better practice to check the status 
 C  value more frequently.
 C  read configuration file
-      write(0,*) 'enter the name of the input configuration file'
-      read *,cfname
+      write(*,*) 'enter the name of the input configuration file'
+      read(*,*) cfname
       open(11,FILE=cfname,STATUS='old',ERR=999)
 C BITPIX 8
       read(11,100) key,bitpix
@@ -63,14 +65,14 @@ C IFNAME mariner_mercury.asc
 C OFNAME image001.fits
       read(11,110) key,filename
       close(11)
-      write(0,*) 'configuration:'
-      write(0,*)'BITPIX: ',bitpix
-      write(0,*)'SIGN:   ',mysign
-      write(0,*)'ENDIAN: ',endian
-      write(0,*)'NAXIS1: ',naxes(1)
-      write(0,*)'NAXIS2: ',naxes(2)
-      write(0,*)'IFNAME: ',ifname
-      write(0,*)'OFNAME: ',filename
+      write(*,*) 'configuration:'
+      write(*,*)'BITPIX: ',bitpix
+      write(*,*)'SIGN:   ',mysign
+      write(*,*)'ENDIAN: ',endian
+      write(*,*)'NAXIS1: ',naxes(1)
+      write(*,*)'NAXIS2: ',naxes(2)
+      write(*,*)'IFNAME: ',ifname
+      write(*,*)'OFNAME: ',filename
 
 
 C  Name of the FITS file to be created:
@@ -90,7 +92,7 @@ C  Create the new empty FITS file.  The blocksize parameter is a
 C  historical artifact and the value is ignored by FITSIO.
       blocksize=1
       status=0
-      write(0,*) 'Create the new empty FITS file ',filename
+      write(*,*) 'Create the new empty FITS file ',filename
       call ftinit(unit,filename,blocksize,status)
       if (status.gt.0) call printerror(status)
 C  Initialize parameters about the FITS image.
@@ -105,19 +107,24 @@ C  may contain extensions following the primary array.
 C  Write the required header keywords to the file
       status=0
       comment = 'pixel format is signed byte'
-      write(0,*) 'Write the required header keywords to ',filename
+      write(*,*) 'Write the required header keywords to ',filename
       call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
-      write(0,*) 'naxes(1):',naxes(1),'naxes(2):',naxes(2)
+      write(*,*) 'naxes(1):',naxes(1),'naxes(2):',naxes(2)
 C  write the current date
-      call FTPDAT(unit,status)
+C      call FTPDAT(unit,status)
 C  read the image data from the ascii file
-      write(0,*) 'opening for reading the image file ',ifname
+      write(*,*) 'opening for reading the image file ',ifname
       open(12,FILE=ifname,STATUS='old',FORM='FORMATTED',ERR=999)
       do 10,j=1,naxes(2)
           READ(12,'(A)',END=90) LINE
 	      READ(LINE,*) FIELDS
           do 20,i=1,naxes(1)
-                array(I,J) = FIELDS(I)
+            if (FIELDS(I) .lt. 0) then
+                uval = FIELDS(I) + 256
+            else
+                uval = FIELDS(I)
+            endif
+            ARRAY(I,J) = char(uval)
             if (debug) print *,j,i,FIELDS(I)
 20        continue
 10    continue
@@ -130,7 +137,7 @@ C  read the image data from the ascii file
 40      continue
 30    continue
       end if
-      write(0,*) 'ended reading input image file'
+      write(*,*) 'ended reading input image file'
       
 C  Write the array to the FITS file.
 C  The last letter of the subroutine name defines the datatype of the
@@ -142,40 +149,43 @@ C  almost always be set = 1.
       group=1
       fpixel=1
       nelements=naxes(1)*naxes(2)
-      write(0,*) 'Write the array to the fits file'
+      write(*,*) 'Write the array to the fits file'
       status=0
 C FTPSS[BIJKED](unit,group,naxis,naxes,fpixels,lpixels,array, > status)
 C      call ftpprb(unit,group,fpixel,nelements,array,status)
-       call FTP2DB(unit,group,10000,naxes(1),naxes(2),array,status)
+C       call FTP2DB(unit,group,500,naxes(1),naxes(2),array,status)
 C      CALL FTPPRJ(unit, fpixel, nelements, array, status)
+       call ftpprb(unit,group,fpixel,nelements,
+     &  array,status)
 
 C  Write another optional keyword to the header
 C  The keyword record will look like this in the FITS file:
 C
 C  EXPOSURE=                 1500 / Total Exposure Time
 C
-      write(0,*) 'Write EXPOSURE KEYWORD in the header'
+      write(*,*) 'Write EXPOSURE KEYWORD in the header'
       status=0
       call ftpkyj(unit,'EXPOSURE',1500,'Total Exposure Time',status)
 
 C  The FITS file must always be closed before exiting the program. 
 C  Any unit numbers allocated with FTGIOU must be freed with FTFIOU.
-      write(0,*) 'Close the file'
+      write(*,*) 'Close the file'
       call ftclos(unit, status)
-      write(0,*) 'Free the unit'
+      write(*,*) 'Free the unit'
       call ftfiou(unit, status)
 
 C  Check for any errors, and if so print out error messages.
 C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0) call printerror(status)
 100   format(A7,I3)
-110   format(A7,A80)
+110   format(A7,A)
 120   format(A)
 990   goto 9999
-999   write(0,*) 'ERROR: cannot read input configuration file'
+999   write(*,*) 'ERROR: cannot read input configuration file'
       goto 9999
-1000  write(0,*) 'ERROR: cannot read input image file'
+1000  write(*,*) 'ERROR: cannot read input image file'
 9999  continue
+      close(20)
       end
 C *************************************************************************
       subroutine printerror(status)
@@ -231,18 +241,18 @@ C  Try to open the file, to see if it exists
 
       if (status .eq. 0)then
 C         file was opened;  so now delete it 
-          write(0,*) 'deleting the file ',filename
+          write(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       else if (status .eq. 103)then
 C         file doesn't exist, so just reset status to zero and clear errors
           status=0
           call ftcmsg
-          write(0,*) 'file ',filename,' doesn''t exist: doing nothing'
+          write(*,*) 'file ',filename,' doesn''t exist: doing nothing'
       else
 C         there was some other error opening the file; delete the file anyway
           status=0
           call ftcmsg
-          write(0,*) 'deleting the file ',filename
+          write(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       end if
 

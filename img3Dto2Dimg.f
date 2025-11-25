@@ -1,23 +1,23 @@
 C 
       PROGRAM I3D22D
       IMPLICIT NONE
-      INTEGER BITPIX, NAXIS, NAXIS1, NAXIS2, NAXIS3, ANYF
-      INTEGER STATUS, IUNIT, OUNIT1, OUNIT2, OUNIT3, I, J
-      INTEGER BLOCKSIZE, FPIXEL, NELEMENTS, GROUP
-      PARAMETER (BLOCKSIZE=1, FPIXEL=1, GROUP=1)
+      INTEGER BITPIX, NAXIS, NAXIS1, NAXIS2, NAXIS3, NAXES(3)
+      INTEGER STATUS, IUNIT, OUNIT, I, J
+      INTEGER BLOCKSIZE, FPIXEL, NELEMENTS, GROUP, NFOUND
       REAL BSCALE, BZERO
       LOGICAL SIMPLE, EXTEND
-      CHARACTER*80 FNAME, OUTFILE1, OUTFILE2, OUTFILE3
-      
-      CHARACTER*1 IMAGE3D(12000000)
-      CHARACTER*1 IMAGE2D(2000,2000)
-      
+      LOGICAL DEBUG
+      CHARACTER*80 FNAME, OUTFILE1, OUTFILE2, OUTFILE3      
+      CHARACTER*1 IMAGE3D(5000000)
+      CHARACTER*1 IMAGE2D(1280,1267)
+      CHARACTER*1 NULLVAL
       DATA FNAME /'m31.fits'/
-      DATA OUTFILE1 /'m31sl1.fits'/
-      DATA OUTFILE2 /'m31sl2.fits'/
-      DATA OUTFILE3 /'m31sl3.fits'/
+      DATA OUTFILE1 /'m31sl1_2.fits'/
+      DATA OUTFILE2 /'m31sl2_2.fits'/
+      DATA OUTFILE3 /'m31sl3_2.fits'/
       DATA STATUS /0/
-
+      DATA DEBUG /.TRUE./
+      LOGICAL ANYF
 C     Get FITS file parameters from your header
       NAXIS1 = 1280
       NAXIS2 = 1267  
@@ -26,63 +26,100 @@ C     Get FITS file parameters from your header
       BSCALE = 1.0
       BZERO = 0.0
       SIMPLE = .TRUE.
-      ANYF = 0
+      ANYF = .FALSE.
+      BLOCKSIZE=1
+      FPIXEL=1
+      GROUP=1 
 
+      IF (DEBUG) WRITE(0,*)'Get the free unit number for input file'
+      call ftgiou(iunit,status)
+      IF (DEBUG) WRITE(0,*)'iunit: ',iunit,' fname: ',fname
 
-C     Open input FITS file
+C     Open input FITS file read-only (=0)
+      STATUS = 0
       CALL FTOPEN(IUNIT, FNAME, 0, BLOCKSIZE, STATUS)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error opening input file'
-          CALL PRINTERR(STATUS)
+          CALL PRINTERROR(STATUS)
           STOP
       ENDIF
+      WRITE(0,*) 'input file opened'
+      call ftgknj(iunit,'NAXIS',1,3,naxes,nfound,status)
+      IF (STATUS .NE. 0) THEN
+          WRITE(0,*) 'Error reading image NAXIS data'
+          CALL PRINTERROR(STATUS)
+          STOP
+      ENDIF
+      if (nfound .ne. 3)then
+          print *,'READIMAGE failed to read the NAXISn keywords.'
+          return
+      end if
+      NAXIS = NFOUND
+      IF (DEBUG) WRITE(0,*)'NFOUND = ',NFOUND
+      IF (DEBUG) WRITE(0,*)'NAXIS = ',NAXIS,' NAXIS1 ',NAXES(1),
+     & 'NAXIS2 ',NAXES(2),'NAXIS3 ',NAXES(3)
+      NAXIS1 = NAXES(1)  
+      NAXIS2 = NAXES(2)  
+      NAXIS3 = NAXES(3)  
 
 C     Read the 3D image data
       NELEMENTS = NAXIS1 * NAXIS2 * NAXIS3
+      STATUS = 0
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
-     &            BZERO, BSCALE, IMAGE3D, ANYF, STATUS)
+     &            NULLVAL, IMAGE3D, ANYF, STATUS)
+C      CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
+C     &            BZERO, BSCALE, IMAGE3D, ANYF, STATUS)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error reading 3D data'
-          CALL PRINTERR(STATUS)
+          CALL PRINTERROR(STATUS)
           STOP
       ENDIF
+      WRITE(0,*) 'read 3D data'
 
 C     Close input file
       CALL FTCLOS(IUNIT, STATUS)
+      call ftfiou(iunit, status)
+      WRITE(*,*) 'closed input file'
 
 C     Extract and save first slice (z=1)
       DO 100 J = 1, NAXIS2
           DO 200 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I*NAXIS2+J+0*NAXIS1*NAXIS2)
+              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+0*NAXIS1*NAXIS2)
 200     CONTINUE
 100   CONTINUE
+      WRITE(0,*) 'first slice extracted'
       
       CALL CR2DFT(OUTFILE1, IMAGE2D, NAXIS1, NAXIS2, 
      &                  BITPIX, BSCALE, BZERO)
+      WRITE(0,*) 'first slice saved'
 
 C     Extract and save second slice (z=2)
       DO 300 J = 1, NAXIS2
           DO 400 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I*NAXIS2+J+1*NAXIS1*NAXIS2)
-  400     CONTINUE
-  300 CONTINUE
+              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+1*NAXIS1*NAXIS2)
+400       CONTINUE
+300   CONTINUE
+      WRITE(0,*) 'second slice extracted'
       
       CALL CR2DFT(OUTFILE2, IMAGE2D, NAXIS1, NAXIS2,
      &                  BITPIX, BSCALE, BZERO)
+      WRITE(0,*) 'second slice saved'
 
 C     Extract and save third slice (z=3)
       DO 500 J = 1, NAXIS2
           DO 600 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I*NAXIS2+J+2*NAXIS1*NAXIS2)
-  600     CONTINUE
-  500 CONTINUE
-      
+              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+2*NAXIS1*NAXIS2)
+600       CONTINUE
+500   CONTINUE
+        WRITE(0,*) 'third slice extracted'
+    
       CALL CR2DFT(OUTFILE3, IMAGE2D, NAXIS1, NAXIS2,
      &                  BITPIX, BSCALE, BZERO)
+      WRITE(0,*) 'third slice saved'
 
 C     Clean up
 C      DEALLOCATE(IMAGE3D, IMAGE2D)
-      WRITE(*,*) '3D FITS file successfully split into 3 2D images'
+      WRITE(0,*) '3D FITS file successfully split into 3 2D images'
       STOP
       END
 
@@ -91,35 +128,37 @@ C     Subroutine to create 2D FITS files
      &                        BITPIX, BSCALE, BZERO)
       IMPLICIT NONE
       CHARACTER*(*) FNAME
-      INTEGER NAXIS1, NAXIS2, BITPIX
+      INTEGER NAXIS1, NAXIS2, BITPIX,NAXES(2)
       CHARACTER*1 IMAGE(NAXIS1, NAXIS2)
       REAL BSCALE, BZERO
-      
       INTEGER STATUS, OUNIT, BLOCKSIZE, FPIXEL, GROUP, NELEMENTS
-      PARAMETER (BLOCKSIZE=1, FPIXEL=1, GROUP=1)
       LOGICAL SIMPLE, EXTEND
-      
+      LOGICAL DEBUG
+      BLOCKSIZE=1
+      FPIXEL=1
+      GROUP=1       
       STATUS = 0
       SIMPLE = .TRUE.
+      DEBUG = .TRUE.
       EXTEND = .FALSE.
+      NAXES(1)=NAXIS1
+      NAXES(2)=NAXIS2
+
+      call ftgiou(ounit,status)
 
 C     Create new FITS file
       CALL FTINIT(OUNIT, FNAME, BLOCKSIZE, STATUS)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error creating output file: ', FNAME
-          CALL PRINTERR(STATUS)
+          CALL PRINTERROR(STATUS)
           RETURN
       ENDIF
 
 C     Write primary header
-      CALL FTPHPR(OUNIT, SIMPLE, BITPIX, 2, [NAXIS1, NAXIS2],
+      CALL FTPHPR(OUNIT, SIMPLE, BITPIX, 2, NAXES,
      &            0, 0, EXTEND, STATUS)
       
 C     Write additional header keywords
-      CALL FTPKYE(OUNIT, 'BSCALE', BSCALE, 10, 
-     &            'Data scaling factor', STATUS)
-      CALL FTPKYE(OUNIT, 'BZERO', BZERO, 10,
-     &            'Data zero point', STATUS)
       CALL FTPKYF(OUNIT, 'DATAMAX', 255.0, 1,
      &            'Maximum data value', STATUS)
       CALL FTPKYF(OUNIT, 'DATAMIN', 0.0, 1,
@@ -128,14 +167,16 @@ C     Write additional header keywords
 
 C     Write image data
       NELEMENTS = NAXIS1 * NAXIS2
-      CALL FTPPRI(OUNIT, GROUP, FPIXEL, NELEMENTS, IMAGE, STATUS)
+      STATUS=0
+      IF (DEBUG) WRITE(0,*)'writing image data'      
+      CALL FTPPRB(OUNIT, GROUP, FPIXEL, NELEMENTS, IMAGE, STATUS)
 
 C     Close the file
       CALL FTCLOS(OUNIT, STATUS)
-      
+      call ftfiou(ounit, status)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error writing file: ', FNAME
-          CALL PRINTERR(STATUS)
+          CALL PRINTERROR(STATUS)
       ELSE
           WRITE(*,*) 'Successfully created: ', FNAME
       ENDIF
@@ -143,7 +184,7 @@ C     Close the file
       RETURN
       END
 C *************************************************************************
-      subroutine printerr(status)
+      subroutine printerror(status)
 
 C  This subroutine prints out the descriptive text corresponding to the
 C  error status value and prints out the contents of the internal

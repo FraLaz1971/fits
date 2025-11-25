@@ -1,9 +1,9 @@
 FC=f77 -g
-FD=f77
+FD=f77 
 FFLAG=
 CFITSIO_HOME=C:\cfitsio
 FDFLAGS=-L$(CFITSIO_HOME)\lib
-LIBS=-lcfitsio
+LIBS=-lfitsio
 RM=rm -rf
 OEXT=.o
 EEXT=.exe
