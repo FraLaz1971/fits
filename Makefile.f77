@@ -1,18 +1,22 @@
 FC=f77 -g
 FD=f77 
 FFLAG=
-CFITSIO_HOME=C:\cfitsio
-FDFLAGS=-L$(CFITSIO_HOME)\lib
-LIBS=-lfitsio
+#CFITSIO_HOME=C:\cfitsio
+FDFLAGS=-L$(CFITSIO_HOME)/lib
+LIBS=-lcfitsio
 RM=rm -rf
 OEXT=.o
-EEXT=.exe
+EEXT=
 .PHONY: all clean
-all: writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT)
+all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT)
 
 writeimage$(OEXT): writeimage.f
 	$(FC) -c $<
 writeimage$(EEXT): writeimage$(OEXT)
+	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
+writeimagef$(OEXT): writeimagef.f
+	$(FC) -c $<
+writeimagef$(EEXT): writeimagef$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 wiuchar$(OEXT): wiuchar.f
 	$(FC) -c $<
@@ -27,4 +31,4 @@ img3Dto2Dimg$(EEXT): img3Dto2Dimg$(OEXT)
 test32d$(EEXT): test32d$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 clean:
-	$(RM) *.o writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) image*.fits m31sl*.fits
+	$(RM) *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) image*.fits m31sl*.fits

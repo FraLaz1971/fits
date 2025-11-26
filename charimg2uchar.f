@@ -1,0 +1,42 @@
+      PROGRAM CI2UC
+        INTEGER I,NAXES(2),UVAL
+        CHARACTER*80 IFNAME
+        CHARACTER*1 ARRAY(1000,1000)
+	    INTEGER FIELDS(500)
+	    CHARACTER*2000 LINE
+        LOGICAL DEBUG
+        DEBUG=.TRUE.
+        NAXES(1)=320
+        NAXES(2)=500
+        WRITE(*,*)'ENTER THE ASCII INPUT FILENAME'
+        READ(*,*)IFNAME
+        OPEN(12,FILE=IFNAME,STATUS='OLD',FORM='FORMATTED',ERR=999)
+        DO 10,J=1,NAXES(2)
+          READ(12,'(A)',END=90) LINE
+	      READ(LINE,*) FIELDS
+          DO 20,I=1,NAXES(1)
+            IF (FIELDS(I) .LT. 0) THEN
+                UVAL = FIELDS(I) + 256
+            ELSE
+                UVAL = FIELDS(I)
+            ENDIF
+            ARRAY(I,J) = CHAR(UVAL)
+            IF (DEBUG) WRITE(*,*) J,I,FIELDS(I)
+20        CONTINUE
+10      CONTINUE
+      CLOSE(12)
+90    WRITE(*,*)'DEBUG = ',DEBUG
+      IF(DEBUG) THEN
+      DO 30,J=1,320
+        DO 40,I=1,500
+          FIELDS(I)=ICHAR(ARRAY(I,J))
+40      CONTINUE
+          WRITE(*,100) FIELDS
+30    CONTINUE
+      END IF
+      WRITE(*,*) 'ENDED READING INPUT IMAGE FILE'
+      GOTO 1000
+999   WRITE(*,*)  'ERROR IN READING INPUT FILE ',IFNAME
+1000  CONTINUE
+100   FORMAT(500(I3,1X))
+      END

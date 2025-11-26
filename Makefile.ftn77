@@ -8,25 +8,83 @@ RM=del /f /q
 OEXT=.obj
 EEXT=.exe
 .PHONY: all clean
-all: writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT)
+all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
+	ffirst$(EEXT) fimage2ascii$(EEXT)  rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) 
 
 writeimage$(OEXT): writeimage.f
-	echo $(FC)  $<
 	$(FC)  $<
 writeimage$(EEXT): writeimage$(OEXT)
-	echo $(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+writeimagef$(OEXT): writeimagef.f
+	$(FC)  $<
+writeimagef$(EEXT): writeimagef$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+charimg2uchar$(OEXT): charimg2uchar.f
+	$(FC)  $<
+charimg2uchar$(EEXT): charimg2uchar$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+cookbook$(OEXT): cookbook.f
+	$(FC)  $<
+cookbook$(EEXT): cookbook$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+ffirst$(OEXT): ffirst.f
+	$(FC)  $<
+ffirst$(EEXT): ffirst$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+fimage2ascii$(OEXT): fimage2ascii.f
+	$(FC)  $<
+fimage2ascii$(EEXT): fimage2ascii$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+ftn77$(OEXT): ftn77.f
+	$(FC)  $<
+ftn77$(EEXT): ftn77$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+rainpd$(OEXT): rainpd.f
+	$(FC)  $<
+rainpd$(EEXT): rainpd$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+rdclimpd$(OEXT): rdclimpd.f
+	$(FC)  $<
+rdclimpd$(EEXT): rdclimpd$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 wiuchar$(OEXT): wiuchar.f
 	$(FC)  $<
 wiuchar$(EEXT): wiuchar$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
-test32d$(OEXT): test32d.f
+readbintable$(OEXT): readbintable.f
 	$(FC)  $<
+readbintable$(EEXT): readbintable$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+readimage$(OEXT): readimage.f
+	$(FC)  $<
+readimage$(EEXT): readimage$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+test3do$(OEXT): test3do.f
+	$(FC)  $<
+test3do$(EEXT): test3do$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+testread$(OEXT): testread.f
+	$(FC)  $<
+testread$(EEXT): testread$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+testwi$(OEXT): testwi.f
+	$(FC)  $<
+testwi$(EEXT): testwi$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+writebintable$(OEXT): writebintable.f
+	$(FC)  $<
+writebintable$(EEXT): writebintable$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 img3Dto2Dimg$(OEXT): img3Dto2Dimg.f
 	$(FC)  $<
 img3Dto2Dimg$(EEXT): img3Dto2Dimg$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+test32d$(OEXT): test32d.f
+	$(FC)  $<
 test32d$(EEXT): test32d$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 clean:
-	$(RM) *$(OEXT) writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) image*.fits m31sl*.fits
+	$(RM) *$(OEXT) writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
+	ffirst$(EEXT) fimage2ascii.$(EEXT) rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \ 
+	test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) writeimagef$(EEXT) \
+	image*.fits m31sl*.fits

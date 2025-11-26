@@ -10,15 +10,15 @@ C  Guide that provides more complete documentation on all the
 C  available FITSIO subroutines.
       common /config/ BITPIX,NAXIS,NAXES
 C  get the filename of the fits image to read
-      write(0,*) 'insert fits image file name'
+      WRITE(*,*) 'insert fits image file name'
       read *, fname
 C  Call each subroutine in turn:
 
       call readheader(fname)
-      call readimage(fname)
+      call rwimage(fname)
 C      call writeimage(ofname)
       print *
-      write(0,*) "All the fitsio routines ran successfully."
+      WRITE(*,*) 'All the fitsio routines ran successfully.'
 
       end
 C *************************************************************************
@@ -48,22 +48,22 @@ C     parameter is obsolete and should be ignored.
 100   continue
       j = j + 1
 
-      write(0,*)'Header listing for HDU', j
+      WRITE(*,*)'Header listing for HDU', j
 
 C  The FTGHSP subroutine returns the number of existing keywords in the
 C  current header data unit (CHDU), not counting the required END keyword,
       call ftghsp(unit,nkeys,nspace,status)
-      write(0,*)'there are ',nkeys,'keywords'
+      WRITE(*,*)'there are ',nkeys,'keywords'
 C  Read each 80-character keyword record, and print it out.
       do i = 1, nkeys
           call ftgrec(unit,i,record,status)
-          write(0,*) record
+          WRITE(*,*) record
       end do
 
 C  Print out an END record, and a blank line to mark the end of the header.
       if (status .eq. 0)then
-          write(0,*)'END'
-          write(0,*)' '
+          WRITE(*,*)'END'
+          WRITE(*,*)' '
       end if
 
 C  Try moving to the next extension in the FITS file, if it exists.
@@ -81,7 +81,7 @@ C         success, so jump back and print out keywords in this extension
 
       else if (status .eq. 107)then
 C         hit end of file, so quit
-          write(0,*)'file ends after current:',J,'HDU'
+          WRITE(*,*)'file ends after current:',J,'HDU'
           status=0
       end if
 
@@ -95,20 +95,20 @@ C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0)call printerror(status)
       end
 C *************************************************************************
-      subroutine readimage(filename)
+      subroutine rwimage(filename)
 C  Read a FITS image and determine the minimum and maximum pixel value.
 C  Rather than reading the entire image in
 C  at once (which could require a very large array), the image is read
 C  in pieces, 100 pixels at a time.  
 
-      integer status,unit,readwrite,blocksize,nfound,cnt
+      integer status,unit,readwrite,blocksize,nfound,cnt,posi
       integer group,firstpix,nbuffer,npixels,i,bitpix,naxis,naxes(3)
      & ,brow(1280)
       real datamin,datamax,nullval,buffer(1280),row(1280)
-      character*1 bdatamin,bdatamax,bnullval,bbuffer(1280)
+      character*1 bdatamin,bdatamax,bnullval,bbuffer(1280),ctf
      
       logical anynull
-      character filename*80,comment*80,keyword*16
+      character filename*80,ofilename*80,comment*80,keyword*16
       common /config/ BITPIX,NAXIS,NAXES
       logical debug
       debug = .false.
@@ -127,7 +127,7 @@ C  Determine the size of the image.
 
 C  Check that it found both NAXIS1 and NAXIS2 keywords.
       if (nfound .ne. 2)then
-          print *,'READIMAGE failed to read the NAXISn keywords.'
+          print *,'rwimage failed to read the NAXISn keywords.'
           return
        end if
 
@@ -141,10 +141,14 @@ C  Initialize variables
       bdatamin=char(255)
       bdatamax=char(0)
       keyword='BITPIX'
+      ctf='.'
+      posi=index(filename,ctf)
+      write(ofilename,'(A,A)') filename(1:posi),'asc'
+      open(UNIT=11,FILE=ofilename)
       call FTGKYJ(unit,keyword,bitpix,comment,status)
       cnt=1
       if(bitpix.eq.8) then
-      write(0,*) 'processing image with 1 byte pixels'
+      WRITE(*,*) 'processing image with 1 byte pixels'
 100      if (npixels .le. 0) goto 200
 C             read up to 100 pixels at a time 
               nbuffer=min(naxes(1),npixels)
@@ -154,7 +158,7 @@ C             read up to 100 pixels at a time
     
 C             find the min and max values
               do 10, i=1,nbuffer
-                if (debug) write(0,*) 'buffer ',cnt,':'
+                if (debug) WRITE(*,*) 'buffer ',cnt,':'
      &           ,ichar(bbuffer(i))
                 
                 if (bbuffer(i).lt.bdatamin) bdatamin=bbuffer(i)
@@ -162,18 +166,19 @@ C             find the min and max values
                 brow(i)=ichar(bbuffer(i))
                 cnt = cnt + 1
 10        continue
-          write(*,500) brow
+          write(11,500) brow
     
 C             increment pointers and loop back to read the next group of pixels
               npixels=npixels-nbuffer
               firstpix=firstpix+nbuffer
         goto 100 
 200     continue
-        write(0,*)
-        write(0,*)'Min and max image pixels = ',ichar(bdatamin),
+        close(11)
+        WRITE(*,*)
+        WRITE(*,*)'Min and max image pixels = ',ichar(bdatamin),
      &    ichar(bdatamax)
       else
-      write(0,*) 'processing image with float 4 byte pixels'
+      WRITE(*,*) 'processing image with float 4 byte pixels'
           do while (npixels .gt. 0)
 C             read up to 100 pixels at a time 
               nbuffer=min(naxes(1),npixels)

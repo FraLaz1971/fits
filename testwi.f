@@ -2,8 +2,9 @@
         character*80 filename
         integer ounit,blocksize,status
         filename = 'img001.fits'
+        blocksize=1
         status=0
-        write(0,*) 'TESTWI: Create the new empty FITS file ',filename
+        WRITE(*,*) 'TESTWI: Create the new empty FITS file ',filename
         call ftinit(ounit,filename,blocksize,status)
         if (status.gt.0) call printerror(status)
       END
@@ -61,18 +62,18 @@ C  Try to open the file, to see if it exists
 
       if (status .eq. 0)then
 C         file was opened;  so now delete it 
-          write(0,*) 'deleting the file ',filename
+          WRITE(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       else if (status .eq. 103)then
 C         file doesn't exist, so just reset status to zero and clear errors
           status=0
           call ftcmsg
-          write(0,*) 'file ',filename,' doesn''t exist: doing nothing'
+          WRITE(*,*) 'file ',filename,' doesn''t exist: doing nothing'
       else
 C         there was some other error opening the file; delete the file anyway
           status=0
           call ftcmsg
-          write(0,*) 'deleting the file ',filename
+          WRITE(*,*) 'deleting the file ',filename
           call ftdelt(unit,status)
       end if
 

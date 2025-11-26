@@ -19,7 +19,7 @@ C  Call each subroutine in turn:
       call readimage
       call readtable
       print *
-      print *,"All the fitsio cookbook routines ran successfully."
+      print *,'All the fitsio cookbook routines ran successfully.'
 
       end
 C *************************************************************************
@@ -664,7 +664,7 @@ C  Move to the next extension
 C  Read the TTYPEn keywords, which give the names of the columns
           call ftgkns(unit,'TTYPE',1,3,ttype,nfound,status)
           write(*,2000)ttype
-2000      format(2x,"Row   ",3a10)
+2000      format(2x,'Row   ',3a10)
 
 C  Read the data, one row at a time, and print them out
           felem=1

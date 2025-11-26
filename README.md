@@ -154,3 +154,44 @@ writefits.c
 ###
 writeftable.c
 ###
+to compile the fortran programs on MS Windows using the Salford/Silverfrost ftn77 fortran 77 compiler (free for non commercial use)
+enter the following (you should have mingw32-make installed):
+###
+`mingw32-make -f Makefile.ftn77`
+###
+charimg2uchar.exe
+###
+cookbook.exe
+###
+ffirst.exe
+###
+fimage2ascii.exe
+###
+img3Dto2Dimg.exe
+###
+rainpd.exe
+###
+rdclimpd.exe
+###
+readbintable.exe
+###
+readimage.exe
+###
+test32d.exe
+###
+test3do.exe
+###
+testread.exe
+###
+teststd.exe
+###
+testwi.exe
+###
+wiuchar.exe
+###
+writebintable.exe
+###
+writeimage.exe
+###
+writeimage2.exe
+###

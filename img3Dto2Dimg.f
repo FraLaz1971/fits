@@ -11,13 +11,13 @@ C
       CHARACTER*1 IMAGE3D(5000000)
       CHARACTER*1 IMAGE2D(1280,1267)
       CHARACTER*1 NULLVAL
+      LOGICAL ANYF
       DATA FNAME /'m31.fits'/
       DATA OUTFILE1 /'m31sl1_2.fits'/
       DATA OUTFILE2 /'m31sl2_2.fits'/
       DATA OUTFILE3 /'m31sl3_2.fits'/
       DATA STATUS /0/
       DATA DEBUG /.TRUE./
-      LOGICAL ANYF
 C     Get FITS file parameters from your header
       NAXIS1 = 1280
       NAXIS2 = 1267  
@@ -31,9 +31,9 @@ C     Get FITS file parameters from your header
       FPIXEL=1
       GROUP=1 
 
-      IF (DEBUG) WRITE(0,*)'Get the free unit number for input file'
+      IF (DEBUG) WRITE(*,*)'Get the free unit number for input file'
       call ftgiou(iunit,status)
-      IF (DEBUG) WRITE(0,*)'iunit: ',iunit,' fname: ',fname
+      IF (DEBUG) WRITE(*,*)'iunit: ',iunit,' fname: ',fname
 
 C     Open input FITS file read-only (=0)
       STATUS = 0
@@ -43,20 +43,21 @@ C     Open input FITS file read-only (=0)
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
-      WRITE(0,*) 'input file opened'
+      WRITE(*,*) 'input file opened'
       call ftgknj(iunit,'NAXIS',1,3,naxes,nfound,status)
       IF (STATUS .NE. 0) THEN
-          WRITE(0,*) 'Error reading image NAXIS data'
+          WRITE(*,*) 'Error reading image NAXIS data'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
       if (nfound .ne. 3)then
           print *,'READIMAGE failed to read the NAXISn keywords.'
-          return
+          CALL PRINTERROR(STATUS)
+          STOP
       end if
       NAXIS = NFOUND
-      IF (DEBUG) WRITE(0,*)'NFOUND = ',NFOUND
-      IF (DEBUG) WRITE(0,*)'NAXIS = ',NAXIS,' NAXIS1 ',NAXES(1),
+      IF (DEBUG) WRITE(*,*)'NFOUND = ',NFOUND
+      IF (DEBUG) WRITE(*,*)'NAXIS = ',NAXIS,' NAXIS1 ',NAXES(1),
      & 'NAXIS2 ',NAXES(2),'NAXIS3 ',NAXES(3)
       NAXIS1 = NAXES(1)  
       NAXIS2 = NAXES(2)  
@@ -74,7 +75,7 @@ C     &            BZERO, BSCALE, IMAGE3D, ANYF, STATUS)
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
-      WRITE(0,*) 'read 3D data'
+      WRITE(*,*) 'read 3D data'
 
 C     Close input file
       CALL FTCLOS(IUNIT, STATUS)
@@ -87,11 +88,11 @@ C     Extract and save first slice (z=1)
               IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+0*NAXIS1*NAXIS2)
 200     CONTINUE
 100   CONTINUE
-      WRITE(0,*) 'first slice extracted'
+      WRITE(*,*) 'first slice extracted'
       
       CALL CR2DFT(OUTFILE1, IMAGE2D, NAXIS1, NAXIS2, 
      &                  BITPIX, BSCALE, BZERO)
-      WRITE(0,*) 'first slice saved'
+      WRITE(*,*) 'first slice saved'
 
 C     Extract and save second slice (z=2)
       DO 300 J = 1, NAXIS2
@@ -99,11 +100,11 @@ C     Extract and save second slice (z=2)
               IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+1*NAXIS1*NAXIS2)
 400       CONTINUE
 300   CONTINUE
-      WRITE(0,*) 'second slice extracted'
+      WRITE(*,*) 'second slice extracted'
       
       CALL CR2DFT(OUTFILE2, IMAGE2D, NAXIS1, NAXIS2,
      &                  BITPIX, BSCALE, BZERO)
-      WRITE(0,*) 'second slice saved'
+      WRITE(*,*) 'second slice saved'
 
 C     Extract and save third slice (z=3)
       DO 500 J = 1, NAXIS2
@@ -111,15 +112,15 @@ C     Extract and save third slice (z=3)
               IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+2*NAXIS1*NAXIS2)
 600       CONTINUE
 500   CONTINUE
-        WRITE(0,*) 'third slice extracted'
+        WRITE(*,*) 'third slice extracted'
     
       CALL CR2DFT(OUTFILE3, IMAGE2D, NAXIS1, NAXIS2,
      &                  BITPIX, BSCALE, BZERO)
-      WRITE(0,*) 'third slice saved'
+      WRITE(*,*) 'third slice saved'
 
 C     Clean up
 C      DEALLOCATE(IMAGE3D, IMAGE2D)
-      WRITE(0,*) '3D FITS file successfully split into 3 2D images'
+      WRITE(*,*) '3D FITS file successfully split into 3 2D images'
       STOP
       END
 
@@ -168,7 +169,7 @@ C     Write additional header keywords
 C     Write image data
       NELEMENTS = NAXIS1 * NAXIS2
       STATUS=0
-      IF (DEBUG) WRITE(0,*)'writing image data'      
+      IF (DEBUG) WRITE(*,*)'writing image data'      
       CALL FTPPRB(OUNIT, GROUP, FPIXEL, NELEMENTS, IMAGE, STATUS)
 
 C     Close the file
