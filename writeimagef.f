@@ -17,12 +17,13 @@ C     Create a FITS primary array containing a 2-D image
 C cfname=configuration file containing input metadata for the image to create
 C ifname=ascii file containing the image array points
       character*80 ifname,cfname
-      real array(6840,5321)
+      character*1 array(300,200)
       logical simple,extend
-	  REAL FIELDS(6840)
+	  integer FIELDS(300)
+	  character*1 BFIELDS(300)
       INTEGER IOSTAT, REC_NUM
       INTEGER RECLEN
-	  CHARACTER*32767 LINE
+	  CHARACTER*1210 LINE
       logical debug
       debug=.false.
       RECLEN = 102600
@@ -75,16 +76,16 @@ C     initialize parameters about the FITS image
       simple=.true.
       naxis=2
       extend=.true.
+      status=0
+      write(*,*) 'Writing the required header keywords to ',filename
+      call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
 C  Write the required header keywords to the file
       status=0
-      comment = 'pixel format is signed byte'
-      write(*,*) 'Write the required header keywords to ',filename
+      comment = 'pixel format is unsigned byte'
 C  read the image data from the ascii file
       write(*,*) 'opening for reading the image file ',ifname
 C     write the required header keywords
       write(*,*) 'before calling ftphpr'
-      call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
-      status=0
       write(*,*) 'ended reading input image file'
       write(*,*) 'unit: ', unit
       write(*,*) 'simple: ', simple
@@ -100,17 +101,17 @@ C     write the array to the FITS file
       group=1
       fpixel=1
       nelements=naxes(1)
-      OPEN(UNIT=12, FILE=IFNAME, ACCESS='DIRECT', FORM='FORMATTED',
-     &     RECL=RECLEN, STATUS='OLD', IOSTAT=IOSTAT,ERR=999)      
-C     open(12,FILE=ifname,STATUS='old',FORM='FORMATTED',ERR=999)
+      OPEN(UNIT=12, FILE=IFNAME,STATUS='old',IOSTAT=IOSTAT,ERR=999)
       do 10,j=1,naxes(2)
-C          READ(12,'(A)',END=90) LINE
-          READ(12,FMT=900, REC=REC_NUM) FIELDS
+          READ(12,'(A)',END=90) LINE
 C          IF (DEBUG) WRITE(*,*) LINE
-C	      READ(LINE,*) FIELDS
+	      READ(LINE,*) FIELDS
+          IF (DEBUG) write(*,*) FIELDS
+          do 20,i=1,naxes(1)
+            BFIELDS(I)=char(FIELDS(I))
+20        continue
           IF (DEBUG) WRITE(*,*) 'READ ROW ',J
-      write(*,*) 'before calling ftppre'
-      call ftppre(unit,group,fpixel,naxes(1),FIELDS,status)
+      call ftpprb(unit,group,fpixel,naxes(1),BFIELDS,status)
       fpixel = fpixel + naxes(1)
 10    continue
       close(12)
@@ -136,7 +137,7 @@ C     check for any error, and if so print out error messages
 100   format(A7,I8)
 110   format(A7,A)
 120   format(A)
-900   FORMAT(6840F15.6)
+900   FORMAT(300I3)
 990   goto 9999
 999   write(*,*) 'ERROR: cannot read input configuration file'
       goto 9999
