@@ -8,7 +8,8 @@ RM=rm -rf
 OEXT=.o
 EEXT=
 .PHONY: all clean
-all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT)
+all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
+	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT)
 
 writeimage$(OEXT): writeimage.f
 	$(FC) -c $<
@@ -28,7 +29,12 @@ img3Dto2Dimg$(OEXT): img3Dto2Dimg.f
 	$(FC) -c $<
 img3Dto2Dimg$(EEXT): img3Dto2Dimg$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
+img3Dto2Dimg2$(OEXT): img3Dto2Dimg2.f
+	$(FC) -c $<
+img3Dto2Dimg2$(EEXT): img3Dto2Dimg2$(OEXT)
+	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 test32d$(EEXT): test32d$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 clean:
-	$(RM) *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) image*.fits m31sl*.fits
+	$(RM) *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
+	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT) image*.fits m31sl*.fits

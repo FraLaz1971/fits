@@ -72,63 +72,69 @@ c read the BITPIX KEYWORD FROM THE HEADER OF THE INPUT FILE
       IF (DEBUG) WRITE(*,*)'BSCALE = ',BSCALE,' ',COMM
       call ftgkye(iunit,'BZERO',BZERO,comm,status)
       IF (DEBUG) WRITE(*,*)'BZERO = ',BZERO,' ',COMM
-C     Read the 3D image data
-      NELEMENTS = NAXIS1 * NAXIS2 * NAXIS3
+C     Read the first 2D image data
+      NELEMENTS = NAXIS1 * NAXIS2
+      DO 10,I=1,NAXIS3
+      FPIXEL = (I-1)*NAXIS1*NAXIS2+1
+      IF (I.EQ.1) THEN
       STATUS = 0
+C     Extract and save first slice (z=1)
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
-     &            NULLVAL, IMAGE3D, ANYF, STATUS)
+     &            NULLVAL, IMAGE2D, ANYF, STATUS)
       IF (STATUS .NE. 0) THEN
           WRITE(*,*) 'Error reading 3D data'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
-      WRITE(*,*) 'read 3D data'
+      WRITE(*,*) 'read 3D data',I
+      WRITE(*,*) 'first slice extracted'
+      CALL deletefile(OUTFILE1,status)
+      CALL CR2DFT(OUTFILE1, IMAGE2D, NAXIS1, NAXIS2, 
+     &                  BITPIX, BSCALE, BZERO)
+      WRITE(*,*) 'first slice saved'
+      ELSE IF (I.EQ.2) THEN
+C     save second slice (z=2)
+      CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
+     &            NULLVAL, IMAGE2D, ANYF, STATUS)
+      IF (STATUS .NE. 0) THEN
+          WRITE(*,*) 'Error reading 3D data'
+          CALL PRINTERROR(STATUS)
+          STOP
+      ENDIF
+      CALL deletefile(OUTFILE2,status)
+      CALL CR2DFT(OUTFILE2, IMAGE2D, NAXIS1, NAXIS2,
+     &                  BITPIX, BSCALE, BZERO)
+      WRITE(*,*) 'second slice saved'
+      WRITE(*,*) 'read 3D data',I
+      ELSE IF (I.EQ.3) THEN
+C     save third slice (z=3)
+      STATUS = 0
+C     Extract and save first slice (z=1)
+      CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
+     &            NULLVAL, IMAGE2D, ANYF, STATUS)
+      IF (STATUS .NE. 0) THEN
+          WRITE(*,*) 'Error reading 3D data'
+          CALL PRINTERROR(STATUS)
+          STOP
+      ENDIF
+      WRITE(*,*) 'read 3D data',I
+      WRITE(*,*) 'third slice extracted'    
+      CALL deletefile(OUTFILE3,status)
+      CALL CR2DFT(OUTFILE3, IMAGE2D, NAXIS1, NAXIS2,
+     &                  BITPIX, BSCALE, BZERO)
+      WRITE(*,*) 'third slice saved'
+      ENDIF
+10    CONTINUE
 
 C     Close input file
       CALL FTCLOS(IUNIT, STATUS)
       call ftfiou(iunit, status)
       WRITE(*,*) 'closed input file'
 
-C     Extract and save first slice (z=1)
-      DO 100 J = 1, NAXIS2
-          DO 200 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+0*NAXIS1*NAXIS2)
-200     CONTINUE
-100   CONTINUE
-      WRITE(*,*) 'first slice extracted'
-      CALL deletefile(OUTFILE1,status)
-      CALL CR2DFT(OUTFILE1, IMAGE2D, NAXIS1, NAXIS2, 
-     &                  BITPIX, BSCALE, BZERO)
-      WRITE(*,*) 'first slice saved'
       
-C     Extract and save second slice (z=2)
-      DO 300 J = 1, NAXIS2
-          DO 400 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+1*NAXIS1*NAXIS2)
-400       CONTINUE
-300   CONTINUE
-      WRITE(*,*) 'second slice extracted'
-      
-      CALL deletefile(OUTFILE2,status)
-      CALL CR2DFT(OUTFILE2, IMAGE2D, NAXIS1, NAXIS2,
-     &                  BITPIX, BSCALE, BZERO)
-      WRITE(*,*) 'second slice saved'
 
-C     Extract and save third slice (z=3)
-      DO 500 J = 1, NAXIS2
-          DO 600 I = 1, NAXIS1
-              IMAGE2D(I,J) = IMAGE3D(I+(J-1)*NAXIS1+2*NAXIS1*NAXIS2)
-600       CONTINUE
-500   CONTINUE
-        WRITE(*,*) 'third slice extracted'
-    
-      CALL deletefile(OUTFILE3,status)
-      CALL CR2DFT(OUTFILE3, IMAGE2D, NAXIS1, NAXIS2,
-     &                  BITPIX, BSCALE, BZERO)
-      WRITE(*,*) 'third slice saved'
 
 C     Clean up
-C      DEALLOCATE(IMAGE3D, IMAGE2D)
       WRITE(*,*) '3D FITS file successfully split into 3 2D images'
       STOP
       END
