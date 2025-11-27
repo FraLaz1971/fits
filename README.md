@@ -169,6 +169,10 @@ fimage2ascii.exe
 ###
 img3Dto2Dimg.exe
 ###
+img3Dto2Dimg2.exe
+###
+img3Dto2Dimg2.f this program extract 3 images from a file NAXIS1xNAXIS2x3 of unknown dimension
+###
 rainpd.exe
 ###
 rdclimpd.exe
