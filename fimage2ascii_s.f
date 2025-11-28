@@ -1,4 +1,4 @@
-      program fimg2asc
+      program f2asc
         character*80 fname
         integer bitpix,naxis,naxes(3)
 C  This is the FITSIO cookbook program that contains an annotated listing of
@@ -100,17 +100,18 @@ C  Read a FITS image and determine the minimum and maximum pixel value.
 C  Rather than reading the entire image in
 C  at once (which could require a very large array), the image is read
 C  in pieces, 100 pixels at a time.  
-
+      implicit none
       integer status,unit,readwrite,blocksize,nfound,cnt,cntr,posi,nmax
       parameter(nmax=5000)
-      integer group,firstpix,nbuffer,npixels,i,bitpix,naxis,naxes(3)
-     & ,brow(nmax)
+      character*4 str(nmax)
+      integer group,firstpix,nbuffer,npixels,i,bitpix,naxis,naxes(3),j
       real datamin,datamax,nullval,buffer(nmax),row(nmax)
       character*1 bdatamin,bdatamax,bnullval,bbuffer(nmax),ctf
       logical anynull
       character filename*80,ofilename*80,comment*80,keyword*16
       common /config/ BITPIX,NAXIS,NAXES
       logical debug
+      data str /5000*' '/
       debug = .false.
 C  The STATUS parameter must always be initialized.
       status=0
@@ -149,30 +150,24 @@ C  Initialize variables
       if(bitpix.eq.8) then
       WRITE(*,*) 'processing image with 1 byte pixels'
         open(UNIT=11,FILE=ofilename)
-100      if (npixels .le. 0) goto 200
-C             read up to 100 pixels at a time 
-              nbuffer=min(naxes(1),npixels)
-          
-              call ftgpvb(unit,group,firstpix,nbuffer,bnullval,
+         do 200,j=1,naxes(2)
+              call ftgpvb(unit,group,firstpix,naxes(1),bnullval,
      &            bbuffer,anynull,status)
     
 C             find the min and max values
-              do 10, i=1,nbuffer
+              do 10, i=1,naxes(1)
                 if (debug) WRITE(*,*) 'buffer, eln. ',cnt,' i:'
-     &           ,i,' val:',ichar(bbuffer(i))
-                
+     &           ,i,' val:',ichar(bbuffer(i))                
                 if (bbuffer(i).lt.bdatamin) bdatamin=bbuffer(i)
                 if (bbuffer(i).gt.bdatamax) bdatamax=bbuffer(i)
-                brow(i)=ichar(bbuffer(i))
+                write(str(i),'(I4)') ichar(bbuffer(i))
                 cnt = cnt + 1
 10            continue
-                write(11,550) brow
                 cntr = cntr + 1
-                if (debug) print *, 'row:',cntr,' nbuffer:',nbuffer    
-C             increment pointers and loop back to read the next group of pixels
-              npixels=npixels-nbuffer
-              firstpix=firstpix+nbuffer
-        goto 100 
+                write(11,'(5000A4)') str
+                if (debug) print *, 'row:',cntr,' j:',j    
+C             increment pointer and loop back to read the next row
+              firstpix=firstpix+naxes(1)
 200     continue
         close(11)
         WRITE(*,*)
@@ -212,9 +207,9 @@ C  Any unit numbers allocated with FTGIOU must be freed with FTFIOU.
 C  Check for any error, and if so print out error messages.
 C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0)call printerror(status)
-500   format(I4,1X,$)
+500   format(I4,1X)
 550   format(5000(I4,1X))
-600   format(F4.1,1X,$)
+600   format(F4.1,1X)
       end
 C *************************************************************************
       subroutine printerror(status)
