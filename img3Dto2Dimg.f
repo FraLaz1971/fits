@@ -128,7 +128,6 @@ C     Extract and save third slice (z=3)
       WRITE(*,*) 'third slice saved'
 
 C     Clean up
-C      DEALLOCATE(IMAGE3D, IMAGE2D)
       WRITE(*,*) '3D FITS file successfully split into 3 2D images'
       STOP
       END

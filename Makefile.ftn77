@@ -9,7 +9,8 @@ OEXT=.obj
 EEXT=.exe
 .PHONY: all clean
 all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
-	ffirst$(EEXT) fimage2ascii$(EEXT)  rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) 
+	ffirst$(EEXT) fimage2ascii$(EEXT)  rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \
+	test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) img3Dto2Dimg2$(EEXT)
 
 writeimage$(OEXT): writeimage.f
 	$(FC)  $<
@@ -34,6 +35,10 @@ ffirst$(EEXT): ffirst$(OEXT)
 fimage2ascii$(OEXT): fimage2ascii.f
 	$(FC)  $<
 fimage2ascii$(EEXT): fimage2ascii$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+fimage2ascii_s$(OEXT): fimage2ascii_s.f
+	$(FC)  $<
+fimage2ascii_s$(EEXT): fimage2ascii_s$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 ftn77$(OEXT): ftn77.f
 	$(FC)  $<
@@ -79,6 +84,10 @@ img3Dto2Dimg$(OEXT): img3Dto2Dimg.f
 	$(FC)  $<
 img3Dto2Dimg$(EEXT): img3Dto2Dimg$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+img3Dto2Dimg2$(OEXT): img3Dto2Dimg2.f
+	$(FC)  $<
+img3Dto2Dimg2$(EEXT): img3Dto2Dimg2$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 test32d$(OEXT): test32d.f
 	$(FC)  $<
 test32d$(EEXT): test32d$(OEXT)
@@ -87,4 +96,4 @@ clean:
 	$(RM) *$(OEXT) writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
 	ffirst$(EEXT) fimage2ascii.$(EEXT) rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \ 
 	test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) writeimagef$(EEXT) \
-	image*.fits m31sl*.fits
+	img3Dto2Dimg2$(EEXT) image*.fits m31sl*.fits

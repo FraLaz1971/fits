@@ -164,10 +164,9 @@ C             find the min and max values
                 if (bbuffer(i).lt.bdatamin) bdatamin=bbuffer(i)
                 if (bbuffer(i).gt.bdatamax) bdatamax=bbuffer(i)
                 brow(i)=ichar(bbuffer(i))
-                write(11,500) brow(i)
                 cnt = cnt + 1
 10            continue
-                write(11,500)
+                write(11,550) brow
                 cntr = cntr + 1
                 if (debug) print *, 'row:',cntr,' nbuffer:',nbuffer    
 C             increment pointers and loop back to read the next group of pixels
@@ -214,6 +213,7 @@ C  Check for any error, and if so print out error messages.
 C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0)call printerror(status)
 500   format(I4,1X,$)
+550   format(5000(I4,1X))
 600   format(F4.1,1X,$)
       end
 C *************************************************************************

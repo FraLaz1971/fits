@@ -6,9 +6,14 @@ then
 fi
 GNUPLOT="gnuplot -p "
 ifname=$1
-PP=`expr index $fname "."`
-PPM1=$(( $PP - 1 ))
-ofname=${ifname:0:$PPM1}".gp"
-echo "set palette gray; plot '"$1"' matrix with image">$ofname
+ofname=${ifname:0:-4}".gp"
+#echo set size square>$ofname
+echo unset border>>$ofname
+echo unset xlabel>>$ofname
+echo unset ylabel>>$ofname
+echo unset xtics>>$ofname
+echo unset ytics>>$ofname
+echo set title ''>>$ofname
+echo "set palette gray; plot '"$1"' matrix with image">>$ofname
 $GNUPLOT $ofname
 

@@ -8,8 +8,7 @@ C
       LOGICAL SIMPLE, EXTEND
       LOGICAL DEBUG
       CHARACTER*80 FNAME, OUTFILE1, OUTFILE2, OUTFILE3, COMM      
-      CHARACTER*1 IMAGE3D(14701344)
-      CHARACTER*1 IMAGE2D(2096,2338)
+      CHARACTER*1 IMAGE2D(5000,5000)
       CHARACTER*1 NULLVAL
       CHARACTER*1 CTF
       LOGICAL ANYF
@@ -61,10 +60,16 @@ C     Open input FITS file read-only (=0)
       NAXIS = NFOUND
       IF (DEBUG) WRITE(*,*)'NFOUND = ',NFOUND
       IF (DEBUG) WRITE(*,*)'NAXIS = ',NAXIS,' NAXES(1) ',NAXES(1),
-     & 'NAXES(2) ',NAXES(2),'NAXES(3) ',NAXES(3)
+     & ' NAXES(2) ',NAXES(2),' NAXES(3) ',NAXES(3)
       NAXIS1 = NAXES(1)  
       NAXIS2 = NAXES(2)  
       NAXIS3 = NAXES(3)  
+      IF ((NAXIS1.GT.5000).OR.(NAXIS2.GT.5000)) THEN
+         PRINT *,'THE IMAGE DIMENSION IS UNSUPPORTED'
+         PRINT *,'CONTACT THE DEVELOPER TO MODIFY THE PROGRAM'
+         PRINT *,'francesco.lazzarotto@inaf.it'
+         STOP         
+      END IF
 c read the BITPIX KEYWORD FROM THE HEADER OF THE INPUT FILE
       call ftgkyj(iunit,'BITPIX',bitpix,comm,status)
       IF (DEBUG) WRITE(*,*)'BITPIX = ',BITPIX,' ',COMM
@@ -82,7 +87,7 @@ C     Extract and save first slice (z=1)
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
      &            NULLVAL, IMAGE2D, ANYF, STATUS)
       IF (STATUS .NE. 0) THEN
-          WRITE(*,*) 'Error reading 3D data'
+          WRITE(*,*) 'Error reading 3D data 1st slice'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
@@ -97,7 +102,7 @@ C     save second slice (z=2)
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
      &            NULLVAL, IMAGE2D, ANYF, STATUS)
       IF (STATUS .NE. 0) THEN
-          WRITE(*,*) 'Error reading 3D data'
+          WRITE(*,*) 'Error reading 3D data 2nd slice'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
@@ -109,11 +114,11 @@ C     save second slice (z=2)
       ELSE IF (I.EQ.3) THEN
 C     save third slice (z=3)
       STATUS = 0
-C     Extract and save first slice (z=1)
+C     Extract and save third slice (z=3)
       CALL FTGPVB(IUNIT, GROUP, FPIXEL, NELEMENTS, 
      &            NULLVAL, IMAGE2D, ANYF, STATUS)
       IF (STATUS .NE. 0) THEN
-          WRITE(*,*) 'Error reading 3D data'
+          WRITE(*,*) 'Error reading 3D data 3rd slice'
           CALL PRINTERROR(STATUS)
           STOP
       ENDIF
@@ -130,15 +135,10 @@ C     Close input file
       CALL FTCLOS(IUNIT, STATUS)
       call ftfiou(iunit, status)
       WRITE(*,*) 'closed input file'
-
-      
-
-
 C     Clean up
       WRITE(*,*) '3D FITS file successfully split into 3 2D images'
       STOP
       END
-
 C     Subroutine to create 2D FITS files
       SUBROUTINE CR2DFT(FNAME, IMAGE, NAXIS1, NAXIS2,
      &                        BITPIX, BSCALE, BZERO)
