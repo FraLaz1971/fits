@@ -1,5 +1,5 @@
 FC=f77 -g
-FD=f77 
+FD=f77
 FFLAG=
 #CFITSIO_HOME=C:\cfitsio
 FDFLAGS=-L$(CFITSIO_HOME)/lib
@@ -9,11 +9,15 @@ OEXT=.o
 EEXT=
 .PHONY: all clean
 all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
-	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT)
+	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT) fimage2ascii$(EEXT)
 
 writeimage$(OEXT): writeimage.f
 	$(FC) -c $<
 writeimage$(EEXT): writeimage$(OEXT)
+	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
+fimage2ascii$(OEXT): fimage2ascii.f
+	$(FC) -c $<
+fimage2ascii$(EEXT): fimage2ascii$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 writeimagef$(OEXT): writeimagef.f
 	$(FC) -c $<
@@ -37,4 +41,4 @@ test32d$(EEXT): test32d$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 clean:
 	$(RM) *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
-	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT) image*.fits m31sl*.fits
+	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT) fimage2ascii$(EEXT) image*.fits m31sl*.fits

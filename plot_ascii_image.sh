@@ -8,7 +8,7 @@ GNUPLOT="gnuplot -p "
 ifname=$1
 PP=`expr index $fname "."`
 PPM1=$(( $PP - 1 ))
-ofname=${ifname:0:15}".gp"
+ofname=${ifname:0:$PPM1}".gp"
 echo "set palette gray; plot '"$1"' matrix with image">$ofname
 $GNUPLOT $ofname
 

@@ -101,11 +101,11 @@ C  Rather than reading the entire image in
 C  at once (which could require a very large array), the image is read
 C  in pieces, 100 pixels at a time.  
 
-      integer status,unit,readwrite,blocksize,nfound,cnt,posi
+      integer status,unit,readwrite,blocksize,nfound,cnt,cntr,posi
       integer group,firstpix,nbuffer,npixels,i,bitpix,naxis,naxes(3)
-     & ,brow(1280)
-      real datamin,datamax,nullval,buffer(1280),row(1280)
-      character*1 bdatamin,bdatamax,bnullval,bbuffer(1280),ctf
+     & ,brow(2096)
+      real datamin,datamax,nullval,buffer(2096),row(2096)
+      character*1 bdatamin,bdatamax,bnullval,bbuffer(2096),ctf
      
       logical anynull
       character filename*80,ofilename*80,comment*80,keyword*16
@@ -158,16 +158,17 @@ C             read up to 100 pixels at a time
     
 C             find the min and max values
               do 10, i=1,nbuffer
-                if (debug) WRITE(*,*) 'buffer ',cnt,':'
-     &           ,ichar(bbuffer(i))
+                if (debug) WRITE(*,*) 'buffer, eln. ',cnt,' i:'
+     &           ,i,' val:',ichar(bbuffer(i))
                 
                 if (bbuffer(i).lt.bdatamin) bdatamin=bbuffer(i)
                 if (bbuffer(i).gt.bdatamax) bdatamax=bbuffer(i)
                 brow(i)=ichar(bbuffer(i))
                 cnt = cnt + 1
-10        continue
-          write(11,500) brow
-    
+10            continue
+          write(11,500) brow(1:min(naxes(1),nbuffer))
+                cntr = cntr + 1
+                if (debug) print *, 'cntr:',cntr    
 C             increment pointers and loop back to read the next group of pixels
               npixels=npixels-nbuffer
               firstpix=firstpix+nbuffer
@@ -189,11 +190,11 @@ C             read up to 100 pixels at a time
 C             find the min and max values
               do 20, i=1,nbuffer
 C                  if(debug)write(*,*) 'buffer ',cnt,':',buffer(i)
-C                   write(*,600) buffer(i)
                   datamin=min(datamin,buffer(i))
                   datamax=max(datamax,buffer(i))
                 cnt = cnt + 1
 20            continue
+                   write(*,600) buffer
     
 C             increment pointers and loop back to read the next group of pixels
               npixels=npixels-nbuffer
@@ -211,8 +212,8 @@ C  Any unit numbers allocated with FTGIOU must be freed with FTFIOU.
 C  Check for any error, and if so print out error messages.
 C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0)call printerror(status)
-500   format(1280(I3,1X))
-600   format(1280(F4.1,1X))
+500   format(2096(I3,1X))
+600   format(2096(F4.1,1X))
       end
 C *************************************************************************
       subroutine printerror(status)
