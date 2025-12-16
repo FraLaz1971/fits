@@ -29,32 +29,38 @@ C RPL: READ PIXEL LIST (and save in memory arrays)
 C *************************************************************************
       subroutine rpl(ifnam, width, height, values)
         implicit none
+        logical debug
         integer width,height,maxdim,i,j,v
         character*128 ifnam
         parameter(maxdim=5000)
         integer*2 x(maxdim**2),y(maxdim**2)
         character*1 values(maxdim**2)
         character*(maxdim*4) LINE
+        debug=.false.
         print *,'going to open ascii file ',ifnam 
         open(11,FILE=ifnam,err=8900)
-        I=0
-10      read(11,110,end=80,err=9600) LINE
+        i=1
+10      if (i.le.height) then
+          if(debug)print *,'read row ',i
+          read(11,110,end=80,err=9600) LINE
+        else
+          goto 80
+        end if
         J=1
-        PRINT *,'READ LINE ',LINE
-        DO 20,J=1,LEN(LINE)
-           if(j*4.le.width) then
+        if(debug)PRINT *,'READ LINE ',LINE
+        DO 20,J=1,width
              read(LINE((J-1)*4+1:(J-1)*4+4),100,err=9700) v
-             values(j)=char(v)
-             PRINT *,'READ ELEMENT ',J,ichar(VALUES(J))
-           else
-             continue
-           endif
+             values((i-1)*width+j)=char(v)
+             if(debug) PRINT *,'READ ELEMENT ',J,ichar(VALUES(J))
 20      continue
-        if (i.eq.1) print *,'n. columns:',j
-         i=i+1
+        if(debug) then
+        if (i.eq.1) print *,'n. columns:',j-1
+        endif
+        i=i+1
+        J=1
         GOTO 10
 80      close(11)
-        print '(''read'',I5,'' rows'')',i
+        if(debug) print '(''read'',I5,'' rows'')',i-1
         GOTO 9999
 100     format(I4)
 110     format(A)

@@ -44,5 +44,5 @@ img3Dto2Dimg2$(EEXT): img3Dto2Dimg2$(OEXT)
 test32d$(EEXT): test32d$(OEXT)
 	$(FD) -o $@ $^ $(FDFLAGS) $(LIBS)
 clean:
-	$(RM) *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
+	$(RM) fort.* *.o writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) \
 	img3Dto2Dimg$(EEXT) img3Dto2Dimg2$(EEXT) fimage2ascii$(EEXT) apl2fpl$(EEXT) image*.fits m31sl*.fits
