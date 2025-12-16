@@ -8,9 +8,9 @@ RM=del /f /q
 OEXT=.obj
 EEXT=.exe
 .PHONY: all clean
-all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
-	ffirst$(EEXT) fimage2ascii$(EEXT)  rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \
-	test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) img3Dto2Dimg2$(EEXT)
+all: writeimage$(EEXT) writeimagef$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) \
+cookbook$(EEXT) ffirst$(EEXT) fimage2ascii$(EEXT)  rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \
+test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) img3Dto2Dimg2$(EEXT) apl2fpl$(EEXT)
 
 writeimage$(OEXT): writeimage.f
 	$(FC)  $<
@@ -66,6 +66,8 @@ readimage$(EEXT): readimage$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 test3do$(OEXT): test3do.f
 	$(FC)  $<
+apl2fpl$(OEXT): apl2fpl.f
+	$(FC)  $<
 test3do$(EEXT): test3do$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 testread$(OEXT): testread.f
@@ -92,8 +94,10 @@ test32d$(OEXT): test32d.f
 	$(FC)  $<
 test32d$(EEXT): test32d$(OEXT)
 	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
+apl2fpl$(EEXT): apl2fpl$(OEXT)
+	$(FD) -OUT:$@ $^ $(FDFLAGS) $(LIBS)
 clean:
 	$(RM) *$(OEXT) writeimage$(EEXT) wiuchar$(EEXT) test32d$(EEXT) img3Dto2Dimg$(EEXT) charimg2uchar$(EEXT) cookbook$(EEXT) \
 	ffirst$(EEXT) fimage2ascii.$(EEXT) rainpd$(EEXT) rdclimpd$(EEXT) readbintable$(EEXT) readimage$(EEXT) \ 
 	test3do$(EEXT) testread$(EEXT) testwi$(EEXT) writebintable$(EEXT) writeimagef$(EEXT) \
-	img3Dto2Dimg2$(EEXT) image*.fits m31sl*.fits
+	img3Dto2Dimg2$(EEXT) apl2fpl$(EEXT) image*.fits m31sl*.fits
