@@ -3,8 +3,8 @@
       integer width,height,maxdim
       character*128 ifnam
       parameter(maxdim=5000)
-      integer*2 x(maxdim**2),y(maxdim**2)
       character*1 values(maxdim**2)
+      logical debug
 C  This is the FITSIO cookbook program that contains an annotated listing of
 C  various computer programs that read and write files in FITS format
 C  using the FITSIO subroutine interface.  These examples are
@@ -12,7 +12,7 @@ C  working programs which users may adapt and modify for their own
 C  purposes.  This Cookbook serves as a companion to the FITSIO User's
 C  Guide that provides more complete documentation on all the
 C  available FITSIO subroutines.
-
+      debug=.true.
 C  Call each subroutine in turn:
       print *,'enter input filename'
       read *,ifnam
@@ -20,28 +20,28 @@ C  Call each subroutine in turn:
       read *,width
       print *,'enter height'
       read *,height
-      call rpl(ifnam,width,height,values)
+      call mpl(ifnam,width,height,values)
+      if(debug)print *,'going to write binary table call wbt()'
       call wbt(width,height,values)
       stop
       end
 C *************************************************************************
-C RPL: READ PIXEL LIST (and save in memory arrays)
+C mpl: MATRIX TO PIXEL LIST (and save in memory arrays)
 C *************************************************************************
-      subroutine rpl(ifnam, width, height, values)
+      subroutine mpl(ifnam, width, height, values)
         implicit none
         logical debug
         integer width,height,maxdim,i,j,v
         character*128 ifnam
         parameter(maxdim=5000)
-        integer*2 x(maxdim**2),y(maxdim**2)
         character*1 values(maxdim**2)
         character*(maxdim*4) LINE
-        debug=.false.
+        debug=.true.
         print *,'going to open ascii file ',ifnam 
         open(11,FILE=ifnam,err=8900)
         i=1
 10      if (i.le.height) then
-          if(debug)print *,'read row ',i
+          if(debug) print *,'going to read row ',i
           read(11,110,end=80,err=9600) LINE
         else
           goto 80
@@ -66,17 +66,6 @@ C *************************************************************************
 110     format(A)
 8900    PRINT *, 'ERROR IN OPENING FILE',IFNAM
         GOTO 9999
-9000    PRINT *, 'INPUT FILE NAME NOT ENTERED: EXITING'
-        GOTO 9999
-9100    PRINT *, 'ERROR IN READING INPUT FILE NAME: EXITING' 
-9200    PRINT *, 'WIDTH NOT ENTERED: EXITING'
-        GOTO 9999
-9300    PRINT *, 'ERROR IN READING WIDTH: EXITING'
-        GOTO 9999
-9400    PRINT *, 'HEIGTH NOT ENTERED: EXITING'
-        GOTO 9999
-9500    PRINT *, 'ERROR IN READING HEIGHT: EXITING'
-        GOTO 9999
 9600    PRINT *, 'ERROR IN READING PIXEL LINE'
         GOTO 80
 9700    PRINT *, 'ERROR IN READING PIXEL ELEMENT'
@@ -93,18 +82,20 @@ C  This routine creates a FITS binary table, or BINTABLE, containing
 C  3 columns and nrows rows.  
       integer status,unit,readwrite,blocksize,hdutype,tfields,nrows
       integer varidat,colnum,frow,felem,maxdim,width,height
-      parameter(maxdim=5000)
+      parameter(maxdim=500)
       integer*2 x(maxdim**2),y(maxdim**2)
       character*1 values(maxdim**2)
       character extname*16
       integer bitpix,naxis,naxes(2)
-      integer i,j
+      integer i
       character filename*80
-      logical simple,extend
+      logical simple,extend,debug
       character*16 ttype(3),tform(3),tunit(3)
       data ttype/'X','Y','VALUE'/
       data tform/'1I','1I','1B'/
       data tunit/' ',' ',' '/
+      debug=.true.
+      print *,'going generate the values for x() and y()'
 C  The STATUS parameter must always be initialized.
       status=0
       do 10,i=1,width*height
@@ -123,6 +114,7 @@ C  Open the FITS file, with write access.
 C     create the new empty FITS file
       blocksize=1
       call ftinit(unit,filename,blocksize,status)
+      if(debug)print *,'created new empty fits file'
 
 C     initialize parameters about the FITS image (null image 8-bit integers)
       simple=.true.
@@ -134,12 +126,16 @@ C     initialize parameters about the FITS image (null image 8-bit integers)
 
 C     write the required header keywords
       call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
+      if(debug)print *,'written required primary header keywords'
 
-C  Move to the first (1st) HDU in the file (the ASCII table).
+C  Move to the first (1st) HDU in the file.
       call ftmahd(unit,1,hdutype,status)
+      if(debug)print *,'Moved to the first (1st) HDU in the file.'
 
 C  Append/create a new empty HDU onto the end of the file and move to it.
       call ftcrhd(unit,status)
+      if(debug)print *,'create a new empty HDU onto the end of the file
+     &and move to it'
 
 C  Define parameters for the binary table (see the above data statements)
       tfields=3
@@ -154,7 +150,8 @@ C  rows and columns in the table, and the TTYPE, TFORM, and TUNIT arrays
 C  give the column name, format, and units, respectively of each column.
       call ftphbn(unit,nrows,tfields,ttype,tform,tunit,
      &            extname,varidat,status)
-
+      if(debug)print *,'written the required header keywords which 
+     &define the structure of the binary table'
 C  Write names to the first column, diameters to 2nd col., and density to 3rd
 C  FTPCLS writes the string values to the NAME column (column 1) of the
 C  table.  The FTPCLJ and FTPCLE routines write the diameter (integer) and
@@ -167,15 +164,20 @@ C  binary FITS tables.
       felem=1
       colnum=1
       call ftpcli(unit,colnum,frow,felem,nrows,x,status)
+      if(debug)print *,'written column 1' 
       colnum=2
       call ftpcli(unit,colnum,frow,felem,nrows,y,status)  
+      if(debug)print *,'written column 2' 
       colnum=3
       call ftpclb(unit,colnum,frow,felem,nrows,values,status)  
+      if(debug)print *,'written column 3' 
 
 C  The FITS file must always be closed before exiting the program. 
 C  Any unit numbers allocated with FTGIOU must be freed with FTFIOU.
       call ftclos(unit, status)
+      if(debug)print *,'closed fits file' 
       call ftfiou(unit, status)
+      if(debug)print *,'freed file unit' 
 
 C  Check for any error, and if so print out error messages.
 C  The PRINTERROR subroutine is listed near the end of this file.
