@@ -199,3 +199,21 @@ writeimage.exe
 ###
 writeimage2.exe
 ###
+fpl2apl.exe
+###
+This program converts a fits binary table pixel list (image)
+	x1,y1,val1
+	x2,y2,val2
+	...   ...
+	...   ...
+	xn,yn,valn
+in a pure ascii table file, to be plotted in gnuplot and other libraries.
+###
+am2fpl.exe
+###
+this program reads an ascii matrix image (nrows x mcolumns)
+and saves it as a fits binary table pixel list.
+it takes as input from the standard input (o from a redirected file)
+the input matrix file name
+the width of the input matrix
+the hright of the input matrix
