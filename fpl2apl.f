@@ -1,39 +1,40 @@
-      program main
+      program plf2a
       implicit none
       integer width,height,maxdim
       character*128 ifnam
-      parameter(maxdim=5000)
+      parameter(maxdim=500)
       character*1 values(maxdim**2)
       logical debug
 C  This is the FITSIO cookbook program that contains an annotated listing of
 C  various computer programs that read and write files in FITS format
-C  using the FITSIO subroutine interface.  These examples are
+C  using the FITSIO subroutine interface.  These exam2ples are
 C  working programs which users may adapt and modify for their own
 C  purposes.  This Cookbook serves as a companion to the FITSIO User's
-C  Guide that provides more complete documentation on all the
+C  Guide that provides more com2plete documentation on all the
 C  available FITSIO subroutines.
       debug=.true.
-C  Call each subroutine in turn:
-      print *,'enter input filename'
+C  Call needed subroutines in turn:
+      print *,'# enter input filename'
       read *,ifnam
-      print *,'enter width'
+      print *,'# enter width'
       read *,width
-      print *,'enter height'
+      print *,'# enter height'
       read *,height
-      call mpl(ifnam,width,height,values)
-      if(debug)print *,'going to write binary table call wbt()'
-      call wbt(width,height,values)
+c      call m2pl(ifnam,width,height,values)
+c      if(debug)print *,'going to write binary table call wbt()'
+c      call wbt(width,height,values)
+      call fplapl(ifnam)
       stop
       end
 C *************************************************************************
-C mpl: MATRIX TO PIXEL LIST (and save in memory arrays)
+C m2pl: MATRIX TO PIXEL LIST (and save in memory arrays)
 C *************************************************************************
-      subroutine mpl(ifnam, width, height, values)
+      subroutine m2pl(ifnam, width, height, values)
         implicit none
         logical debug
         integer width,height,maxdim,i,j,v
         character*128 ifnam
-        parameter(maxdim=5000)
+        parameter(maxdim=500)
         character*1 values(maxdim**2)
         character*(maxdim*4) LINE
         debug=.true.
@@ -89,7 +90,7 @@ C  3 columns and nrows rows.
       integer bitpix,naxis,naxes(2)
       integer i
       character filename*80
-      logical simple,extend,debug
+      logical sim2ple,extend,debug
       character*16 ttype(3),tform(3),tunit(3)
       data ttype/'X','Y','VALUE'/
       data tform/'1I','1I','1B'/
@@ -117,7 +118,7 @@ C     create the new empty FITS file
       if(debug)print *,'created new empty fits file'
 
 C     initialize parameters about the FITS image (null image 8-bit integers)
-      simple=.true.
+      sim2ple=.true.
       bitpix=8
       naxis=0
       naxes(1)=0
@@ -125,7 +126,7 @@ C     initialize parameters about the FITS image (null image 8-bit integers)
       extend=.true.
 
 C     write the required header keywords
-      call ftphpr(unit,simple,bitpix,naxis,naxes,0,1,extend,status)
+      call ftphpr(unit,sim2ple,bitpix,naxis,naxes,0,1,extend,status)
       if(debug)print *,'written required primary header keywords'
 
 C  Move to the first (1st) HDU in the file.
@@ -184,20 +185,26 @@ C  The PRINTERROR subroutine is listed near the end of this file.
       if (status .gt. 0)call printerror(status)
       end
 C *************************************************************************
-      subroutine readtable
-
+C fplapl: FITS PIXEL LIST TO ASCII PIXEL LIST
+C *************************************************************************
+      subroutine fplapl(filename)
+      implicit none
 C  Read and print data values from an ASCII or binary table
-C  This example reads and prints out all the data in the ASCII and
+C  This exam2ple reads and prints out all the data in the ASCII and
 C  the binary tables that were previously created by WRITEASCII and
 C  wbt.  Note that the exact same FITSIO routines are
 C  used to read both types of tables.
 
-      integer status,unit,readwrite,blocksize,hdutype,ntable
-      integer felem,nelems,nullj,diameter,nfound,irow,colnum
-      real nulle,density
-      character filename*40,nullstr*1,name*8,ttype(3)*10
-      logical anynull
-
+      integer status,unit,readwrite,blocksize,hdutype,ntable,cnkdim
+      integer varidat,colnum,frow,felem,maxdim,width,height,cnkcnt
+      parameter(maxdim=5, cnkdim=maxdim**2)
+      integer*2 x(cnkdim),y(cnkdim)
+      character*1 values(cnkdim),nullb
+      integer nelems,nfound,irow
+      integer*2 nulli
+      character filename*128,ttype(3)*10
+      logical anynull,debug
+      debug=.false.
 C  The STATUS parameter must always be initialized.
       status=0
 
@@ -205,54 +212,53 @@ C  Get an unused Logical Unit Number to use to open the FITS file.
       call ftgiou(unit,status)
 
 C  Open the FITS file previously created by WRITEIMAGE
-      filename='ATESTFILEZ.FITS'
       readwrite=0
       call ftopen(unit,filename,readwrite,blocksize,status)
 
 C  Loop twice, first reading the ASCII table, then the binary table
-      do ntable=2,3
+      ntable=2
 
 C  Move to the next extension
           call ftmahd(unit,ntable,hdutype,status)
 
-          print *,' '
-          if (hdutype .eq. 1)then
-              print *,'Reading ASCII table in HDU ',ntable
-          else if (hdutype .eq. 2)then
-              print *,'Reading binary table in HDU ',ntable
-          end if
+          if (debug) print *,' '
+          if (debug) print *,'Reading binary table in HDU ',ntable
 
 C  Read the TTYPEn keywords, which give the names of the columns
           call ftgkns(unit,'TTYPE',1,3,ttype,nfound,status)
-          write(*,2000)ttype
-2000      format(2x,'Row   ',3a10)
+          if (debug) write(*,2000)ttype
+2000      format('#',3a10)
 
 C  Read the data, one row at a time, and print them out
           felem=1
-          nelems=1
-          nullstr=' '
-          nullj=0
-          nulle=0.
-          do irow=1,6
-C             FTGCVS reads the NAMES from the first column of the table.
+          nelems=maxdim**2
+          nulli=0
+          nullb=char(0)
+          irow=1
+          do 80,cnkcnt=0,159975,cnkdim
+              irow=cnkcnt+1
+              nelems=cnkdim
+C             FTGCVI reads the X  from the first column of the table.
               colnum=1
-              call ftgcvs(unit,colnum,irow,felem,nelems,nullstr,name,
+              call ftgcvi(unit,colnum,irow,felem,nelems,nulli,x,
      &                    anynull,status)
 
-C             FTGCVJ reads the DIAMETER values from the second column.
+C             FTGCVI reads the Y values from the second column.
               colnum=2
-              call ftgcvj(unit,colnum,irow,felem,nelems,nullj,diameter,
+              call ftgcvi(unit,colnum,irow,felem,nelems,nulli,y,
      &                    anynull,status)
 
-C             FTGCVE reads the DENSITY values from the third column.
+C             FTGCVE reads the PIXEL 8 BITS values from the third column.
               colnum=3
-              call ftgcve(unit,colnum,irow,felem,nelems,nulle,density,
+              call ftgcvb(unit,colnum,irow,felem,nelems,nullb,values,
      &                    anynull,status)
-              write(*,2001)irow,name,diameter,density
-2001          format(i5,a10,i10,f10.2)
-          end do
-      end do
-
+     
+              do 70,irow=1,cnkdim              
+                write(*,2001)x(irow),y(irow),ichar(values(irow))
+70            continue
+80            continue
+2001          format(i5,1x,i5,1x,i3)
+      
 C  The FITS file must always be closed before exiting the program. 
 C  Any unit numbers allocated with FTGIOU must be freed with FTFIOU.
       call ftclos(unit, status)
@@ -272,11 +278,11 @@ C  error message stack generated by FITSIO whenever an error occurs.
       integer status
       character errtext*30,errmessage*80
 
-C  Check if status is OK (no error); if so, simply return
+C  Check if status is OK (no error); if so, sim2ply return
       if (status .le. 0)return
 
 C  The FTGERR subroutine returns a descriptive 30-character text string that
-C  corresponds to the integer error status number.  A complete list of all
+C  corresponds to the integer error status number.  A com2plete list of all
 C  the error numbers can be found in the back of the FITSIO User's Guide.
       call ftgerr(status,errtext)
       print *,'FITSIO Error Status =',status,': ',errtext
@@ -289,7 +295,7 @@ C  the stack and shifts any remaining messages on the stack down one
 C  position.  FTGMSG is called repeatedly until a blank message is
 C  returned, which indicates that the stack is empty.  Each error message
 C  may be up to 80 characters in length.  Another subroutine, called
-C  FTCMSG, is available to simply clear the whole error message stack in
+C  FTCMSG, is available to sim2ply clear the whole error message stack in
 C  cases where one is not interested in the contents.
       call ftgmsg(errmessage)
       do while (errmessage .ne. ' ')
@@ -300,12 +306,12 @@ C  cases where one is not interested in the contents.
 C *************************************************************************
       subroutine deletefile(filename,status)
 
-C  A simple little routine to delete a FITS file
+C  A sim2ple little routine to delete a FITS file
 
       integer status,unit,blocksize
       character*(*) filename
 
-C  Simply return if status is greater than zero
+C  Sim2ply return if status is greater than zero
       if (status .gt. 0)return
 
 C  Get an unused Logical Unit Number to use to open the FITS file
